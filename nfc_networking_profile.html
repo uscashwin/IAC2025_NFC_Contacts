@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NFC Networking Profile — shadcn-style</title>
+
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter font similar to shadcn -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --brand: #0f766e; } /* teal-ish like shadcn accents */
+    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: #f8fafc; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(15,23,42,0.06); }
+    .avatar-placeholder { background: linear-gradient(135deg,#e6fffa,#ecfeff); display:flex;align-items:center;justify-content:center;color:#065f46;font-weight:700;}
+    .muted { color: #6b7280; }
+    .thin { font-weight: 300; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-4xl grid gap-6 grid-cols-1 md:grid-cols-2">
+    <!-- Form column -->
+    <div class="card p-6">
+      <h2 class="text-2xl font-semibold">Create / Edit Profile</h2>
+      <p class="text-sm muted mt-1">Fill your info, preview to see how it looks, then generate a share link.</p>
+
+      <form id="profileForm" class="space-y-4 mt-6" onsubmit="event.preventDefault(); saveProfile();">
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-20 rounded-full overflow-hidden avatar-placeholder" id="avatarPreview">
+            <span id="avatarInitials">AB</span>
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium">Profile picture</label>
+            <input type="file" id="avatarInput" accept="image/*" class="mt-2" />
+            <p class="text-xs muted mt-1">PNG/JPG. If you skip upload the initials are used.</p>
+            <div class="mt-2 flex gap-2">
+              <button type="button" onclick="clearAvatar()" class="px-3 py-1 rounded-md text-sm border">Clear</button>
+              <button type="button" onclick="useInitials()" class="px-3 py-1 rounded-md text-sm border">Use initials</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">Full name</label>
+          <input id="fullName" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Jane Doe" />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium">University</label>
+            <input id="university" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="University of Example" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Major</label>
+            <input id="major" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Aerospace Engineering" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium">Grade Level</label>
+            <input id="grade" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Senior" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Interests</label>
+            <input id="interests" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Rockets, Satellites, PCB design" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">LinkedIn URL</label>
+          <input id="linkedin" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="https://linkedin.com/in/yourname" />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium">Phone</label>
+            <input id="phone" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="+1 555 555 5555" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Email</label>
+            <input id="email" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="you@example.com" />
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-2">
+          <button type="button" onclick="saveProfile()" class="px-4 py-2 rounded-md bg-[color:var(--brand)] text-white">Save & Preview</button>
+          <button type="button" onclick="generateShareLink()" class="px-4 py-2 rounded-md border">Generate share link</button>
+          <button type="button" onclick="downloadVCard()" class="px-4 py-2 rounded-md border">Download vCard</button>
+          <button type="button" onclick="resetForm()" class="px-4 py-2 rounded-md text-sm muted">Reset</button>
+        </div>
+
+        <div id="generatedArea" class="mt-3 hidden">
+          <label class="block text-sm font-medium">Share link</label>
+          <div class="mt-1 flex gap-2">
+            <input id="shareLink" class="flex-1 block w-full rounded-md border px-3 py-2" readonly />
+            <button class="px-3 py-2 rounded-md border" onclick="copyShareLink()">Copy</button>
+            <button class="px-3 py-2 rounded-md border" onclick="writeToClipboard()">Write (copy) to clipboard</button>
+          </div>
+          <p class="text-xs muted mt-1">Write this URL to an NFC tag (NFC Tools can write a URL record). When opened, it will show your profile and an Edit button to bring the form pre-filled.</p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Preview column -->
+    <div class="card p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-xl font-semibold" id="previewName">Your Name</h3>
+          <p class="text-sm muted" id="previewUni">University · Major</p>
+        </div>
+        <div class="text-sm muted thin">Preview</div>
+      </div>
+
+      <div class="mt-6 border rounded-lg p-4 flex gap-4 items-center">
+        <div class="w-24 h-24 rounded-full overflow-hidden avatar-placeholder" id="previewAvatarCard">
+          <img id="previewAvatarImg" alt="avatar" class="w-full h-full object-cover hidden" />
+          <div id="previewInitials" class="flex items-center justify-center text-xl font-semibold">JD</div>
+        </div>
+
+        <div class="flex-1">
+          <p id="previewMajor" class="font-medium">Major · Grade</p>
+          <p id="previewInterests" class="muted text-sm mt-1">Interests: ...</p>
+
+          <div class="mt-4 grid grid-cols-1 gap-2">
+            <a id="previewLinkedIn" class="inline-flex items-center gap-2 text-sm text-[color:var(--brand)] hover:underline" href="#" target="_blank"></a>
+            <div class="text-sm muted" id="previewContact"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="enterEditMode()" class="px-4 py-2 rounded-md bg-white border">Edit profile</button>
+        <button onclick="showQRCode()" class="px-4 py-2 rounded-md border">Show QR</button>
+      </div>
+
+      <div id="qrArea" class="mt-6 hidden"></div>
+    </div>
+  </div>
+
+  <!-- Small inline script -->
+  <script>
+    // Helper: base64 encode/decode for URL-friendly encoding
+    function base64Encode(str) {
+      return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    function base64Decode(b64) {
+      b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
+      // pad
+      while (b64.length % 4) b64 += '=';
+      return decodeURIComponent(escape(atob(b64)));
+    }
+
+    // Profile data structure
+    function defaultProfile(){
+      return {
+        fullName: '',
+        university: '',
+        major: '',
+        grade: '',
+        interests: '',
+        linkedin: '',
+        phone: '',
+        email: '',
+        avatarDataUrl: '' // data:image/png;base64,...
+      };
+    }
+
+    // DOM refs
+    const form = document.getElementById('profileForm');
+    const inputs = {
+      fullName: document.getElementById('fullName'),
+      university: document.getElementById('university'),
+      major: document.getElementById('major'),
+      grade: document.getElementById('grade'),
+      interests: document.getElementById('interests'),
+      linkedin: document.getElementById('linkedin'),
+      phone: document.getElementById('phone'),
+      email: document.getElementById('email'),
+      avatarInput: document.getElementById('avatarInput')
+    };
+
+    const preview = {
+      name: document.getElementById('previewName'),
+      uni: document.getElementById('previewUni'),
+      major: document.getElementById('previewMajor'),
+      interests: document.getElementById('previewInterests'),
+      linkedIn: document.getElementById('previewLinkedIn'),
+      contact: document.getElementById('previewContact'),
+      avatarImg: document.getElementById('previewAvatarImg'),
+      initials: document.getElementById('previewInitials'),
+      avatarCard: document.getElementById('previewAvatarCard')
+    };
+
+    const avatarPreviewSmall = document.getElementById('avatarPreview');
+    const avatarInitialsSmall = document.getElementById('avatarInitials');
+
+    let profile = defaultProfile();
+
+    // Load profile from URL hash if present
+    function loadFromHash() {
+      if (location.hash && location.hash.startsWith('#p=')) {
+        try {
+          const b64 = location.hash.slice(3);
+          const json = base64Decode(b64);
+          const obj = JSON.parse(json);
+          profile = Object.assign(defaultProfile(), obj);
+          populateForm();
+          renderPreview();
+          // show generated area
+          document.getElementById('generatedArea').classList.remove('hidden');
+          document.getElementById('shareLink').value = location.href;
+        } catch (e) {
+          console.warn('Could not decode profile from URL', e);
+        }
+      } else {
+        // If localStorage saved, load it
+        const saved = localStorage.getItem('nfc_profile_v1');
+        if (saved) {
+          try {
+            profile = Object.assign(defaultProfile(), JSON.parse(saved));
+            populateForm();
+            renderPreview();
+          } catch(e) { console.warn(e); }
+        }
+      }
+    }
+
+    function populateForm() {
+      inputs.fullName.value = profile.fullName || '';
+      inputs.university.value = profile.university || '';
+      inputs.major.value = profile.major || '';
+      inputs.grade.value = profile.grade || '';
+      inputs.interests.value = profile.interests || '';
+      inputs.linkedin.value = profile.linkedin || '';
+      inputs.phone.value = profile.phone || '';
+      inputs.email.value = profile.email || '';
+      if (profile.avatarDataUrl) {
+        showAvatar(profile.avatarDataUrl);
+      } else {
+        showInitials(profile.fullName || '');
+      }
+    }
+
+    function saveProfile() {
+      // read current inputs into profile
+      profile.fullName = inputs.fullName.value.trim();
+      profile.university = inputs.university.value.trim();
+      profile.major = inputs.major.value.trim();
+      profile.grade = inputs.grade.value.trim();
+      profile.interests = inputs.interests.value.trim();
+      profile.linkedin = inputs.linkedin.value.trim();
+      profile.phone = inputs.phone.value.trim();
+      profile.email = inputs.email.value.trim();
+      // avatarDataUrl kept from upload handler
+
+      // persist to localStorage for convenience
+      try {
+        localStorage.setItem('nfc_profile_v1', JSON.stringify(profile));
+      } catch (e) {
+        console.warn('Could not save to localStorage', e);
+      }
+
+      renderPreview();
+      // unhide generated area if user already generated a link
+      // (we don't auto-generate links)
+    }
+
+    function renderPreview() {
+      preview.name.textContent = profile.fullName || 'Your Name';
+      preview.uni.textContent = (profile.university ? profile.university + ' · ' : '') + (profile.major || '');
+      preview.major.textContent = (profile.major || 'Major') + (profile.grade ? ' · ' + profile.grade : '');
+      preview.interests.textContent = profile.interests ? 'Interests: ' + profile.interests : 'Interests: —';
+      if (profile.linkedin) {
+        preview.linkedIn.href = profile.linkedin;
+        preview.linkedIn.textContent = 'LinkedIn · ' + (profile.linkedin.replace(/^https?:\/\//,''));
+        preview.linkedIn.classList.remove('hidden');
+      } else {
+        preview.linkedIn.href = '#';
+        preview.linkedIn.textContent = '';
+        preview.linkedIn.classList.add('hidden');
+      }
+      const contactParts = [];
+      if (profile.phone) contactParts.push('📞 ' + profile.phone);
+      if (profile.email) contactParts.push('✉️ ' + profile.email);
+      preview.contact.innerHTML = contactParts.join(' · ');
+
+      if (profile.avatarDataUrl) {
+        preview.avatarImg.src = profile.avatarDataUrl;
+        preview.avatarImg.classList.remove('hidden');
+        preview.initials.classList.add('hidden');
+      } else {
+        // initials
+        let initials = initialsFromName(profile.fullName);
+        preview.initials.textContent = initials;
+        preview.initials.classList.remove('hidden');
+        preview.avatarImg.classList.add('hidden');
+      }
+
+      // small avatar
+      if (profile.avatarDataUrl) {
+        avatarPreviewSmall.innerHTML = '<img src="' + profile.avatarDataUrl + '" class="w-full h-full object-cover" />';
+      } else {
+        avatarPreviewSmall.innerHTML = '<div class="flex items-center justify-center text-base font-semibold">' + (initialsFromName(profile.fullName)) + '</div>';
+      }
+    }
+
+    // Avatar upload handling
+    inputs.avatarInput.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        profile.avatarDataUrl = ev.target.result;
+        saveProfile();
+      }
+      reader.readAsDataURL(f);
+    });
+
+    function showAvatar(dataUrl) {
+      profile.avatarDataUrl = dataUrl;
+      saveProfile();
+    }
+
+    function clearAvatar() {
+      profile.avatarDataUrl = '';
+      saveProfile();
+    }
+
+    function useInitials() {
+      profile.avatarDataUrl = '';
+      saveProfile();
+    }
+
+    function initialsFromName(name) {
+      if (!name) return '??';
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+      return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    }
+
+    // Generate a share link: encode profile JSON into URL hash
+    function generateShareLink() {
+      // ensure latest profile saved
+      saveProfile();
+      const json = JSON.stringify(profile);
+      const b64 = base64Encode(json);
+      const currentOrigin = window.location.origin + window.location.pathname;
+      const shareUrl = currentOrigin + '#p=' + b64;
+      document.getElementById('shareLink').value = shareUrl;
+      document.getElementById('generatedArea').classList.remove('hidden');
+      // set location.hash for current window (optional)
+      // location.hash = 'p=' + b64;
+      // advise user to copy link
+      // also display tiny QR code if desired
+      return shareUrl;
+    }
+
+    function copyShareLink() {
+      const link = document.getElementById('shareLink').value;
+      if (!link) return;
+      navigator.clipboard.writeText(link).then(()=> {
+        alert('Link copied to clipboard. Use NFC Tools (or similar) to write it to a tag.');
+      }).catch(()=> alert('Could not copy link automatically. Select and copy manually.'));
+    }
+
+    function writeToClipboard() {
+      copyShareLink();
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+    }
+
+    function resetForm() {
+      if (!confirm('Reset form and clear stored profile?')) return;
+      profile = defaultProfile();
+      localStorage.removeItem('nfc_profile_v1');
+      populateForm();
+      renderPreview();
+      document.getElementById('generatedArea').classList.add('hidden');
+      document.getElementById('shareLink').value = '';
+    }
+
+    // Edit mode: focus form
+    function enterEditMode() {
+      window.scrollTo({top:0,behavior:'smooth'});
+      // nothing else - form is always present; optionally focus the name input
+      inputs.fullName.focus();
+    }
+
+    // vCard generator for convenience
+    function downloadVCard() {
+      saveProfile();
+      const n = profile.fullName || '';
+      const email = profile.email || '';
+      const tel = profile.phone || '';
+      const org = profile.university || '';
+      const title = profile.major || '';
+      let card = 'BEGIN:VCARD\\nVERSION:3.0\\n';
+      if (n) card += 'FN:'+escapeV(n)+'\\n';
+      if (org) card += 'ORG:'+escapeV(org)+'\\n';
+      if (title) card += 'TITLE:'+escapeV(title)+'\\n';
+      if (tel) card += 'TEL;TYPE=CELL:'+escapeV(tel)+'\\n';
+      if (email) card += 'EMAIL;TYPE=INTERNET:'+escapeV(email)+'\\n';
+      if (profile.linkedin) card += 'URL:'+escapeV(profile.linkedin)+'\\n';
+      card += 'END:VCARD';
+      const blob = new Blob([card.replace(/\\\\n/g,'\\n')], {type:'text/vcard'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (profile.fullName ? profile.fullName.replace(/\s+/g,'_') : 'contact') + '.vcf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function escapeV(s) { return (s||'').replace(/\\n/g,'\\\\n'); }
+
+    // Small QR generator (using canvas) - encodes the share link; simple implementation
+    function showQRCode() {
+      const link = document.getElementById('shareLink').value || generateShareLink();
+      const qrArea = document.getElementById('qrArea');
+      qrArea.innerHTML = '';
+      qrArea.classList.remove('hidden');
+
+      // Use a tiny minimal QR generator (no external libs)
+      // We'll use a data-uri from Google's Chart API as fallback (fast)
+      // NOTE: Google Chart API is deprecated but still works for simple QR images.
+      // If offline, fallback to text link.
+      try {
+        const encoded = encodeURIComponent(link);
+        const img = document.createElement('img');
+        img.src = 'https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=' + encoded;
+        img.alt = 'QR code';
+        img.className = 'rounded-md border';
+        qrArea.appendChild(img);
+
+        const p = document.createElement('p');
+        p.className = 'text-xs muted mt-2';
+        p.textContent = 'Scan this QR to open the share link.';
+        qrArea.appendChild(p);
+      } catch (e) {
+        qrArea.textContent = link;
+      }
+    }
+
+    // Populate on load
+    loadFromHash();
+
+    // Accept edit by pressing Enter on inputs? no — just keep simple
+
+    // Make Enter on form behave like save
+    form.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && !ev.target.matches('textarea')) {
+        ev.preventDefault();
+        saveProfile();
+      }
+    });
+
+    // populate initial preview
+    renderPreview();
+
+    // Expose a few functions for dev console
+    window.generateShareLink = generateShareLink;
+    window.saveProfile = saveProfile;
+    window.clearAvatar = clearAvatar;
+    window.useInitials = useInitials;
+    window.resetForm = resetForm;
+  </script>
+</body>
+</html>
