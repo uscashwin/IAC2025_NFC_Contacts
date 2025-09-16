@@ -1,473 +1,483 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NFC Networking Profile — shadcn-style</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NFC Profile Card</title>
+<style>
+  :root{
+    --bg: #0b0f14; --card:#0f1620; --muted:#9fb0c3; --text:#e6edf3; --accent:#4cc2ff; --ring:#233142;
+    --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 800px at 80% -10%, #122033 0%, var(--bg) 55%),
+                radial-gradient(1000px 700px at -10% 120%, #0f1a28 0%, transparent 60%);
+    color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .shell{width:100%; max-width:880px; display:grid; gap:24px}
+  .card{
+    background: linear-gradient(180deg, #0f1722 0%, var(--card) 100%);
+    border:1px solid var(--ring); border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.02);
+    overflow:hidden;
+  }
+  .header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 20px; border-bottom:1px solid var(--ring);
+  }
+  .title{font-weight:600; letter-spacing:.2px}
+  .muted{color:var(--muted); font-size:14px}
+  .content{padding:20px}
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px}
+  .col-12{grid-column:span 12}
+  .col-6{grid-column:span 6}
+  .col-4{grid-column:span 4}
+  @media (max-width:780px){ .col-6,.col-4{grid-column:span 12} }
 
-  <!-- Tailwind via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter font similar to shadcn -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root { --brand: #0f766e; } /* teal-ish like shadcn accents */
-    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: #f8fafc; }
-    .card { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(15,23,42,0.06); }
-    .avatar-placeholder { background: linear-gradient(135deg,#e6fffa,#ecfeff); display:flex;align-items:center;justify-content:center;color:#065f46;font-weight:700;}
-    .muted { color: #6b7280; }
-    .thin { font-weight: 300; }
-  </style>
+  label{display:block; font-size:13px; color:var(--muted); margin:6px 0 6px 2px}
+  input, textarea{
+    width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--ring);
+    background:#0c121a; color:var(--text); outline:none; font-size:14px;
+  }
+  textarea{resize:vertical; min-height:80px}
+  input:focus, textarea:focus{border-color:#2b3e55; box-shadow: 0 0 0 3px rgba(76,194,255,.15)}
+
+  .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  .btn{
+    appearance:none; border:1px solid var(--ring); background:#0d1520; color:var(--text);
+    padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; letter-spacing:.2px;
+    transition:transform .03s ease;
+  }
+  .btn:hover{border-color:#2b3e55}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg, #152638 0%, #0f1a2a 100%); border-color:#28445f}
+  .btn.ok{border-color:rgba(16,185,129,.3); background:rgba(16,185,129,.08)}
+  .btn.warn{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.08)}
+  .btn.err{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.08)}
+
+  .note{font-size:12px; color:var(--muted)}
+  .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px dashed var(--ring);
+        border-radius:999px; font-size:12px; color:var(--muted)}
+  .meter{height:8px; background:#0c1218; border-radius:999px; overflow:hidden; border:1px solid var(--ring)}
+  .meter>span{display:block; height:100%; background:linear-gradient(90deg, #21c9ff, #4cc2ff);
+              width:0%}
+
+  /* VIEW CARD */
+  .vwrap{display:flex; gap:18px; align-items:center}
+  .avatar{
+    width:72px; height:72px; border-radius:14px; border:1px solid var(--ring);
+    background:#0c121a center/cover no-repeat; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:24px; color:#7fd1ff;
+  }
+  .vgrid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px; margin-top:16px}
+  .kv{padding:12px; background:#0c1218; border:1px solid var(--ring); border-radius:12px}
+  .kv small{display:block; color:var(--muted); font-size:11px; margin-bottom:6px; letter-spacing:.3px}
+  .link{color:#9bd4ff; text-decoration:none}
+  .link:hover{text-decoration:underline}
+  .center{display:flex; align-items:center; justify-content:center; padding:24px; text-align:center}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-4xl grid gap-6 grid-cols-1 md:grid-cols-2">
-    <!-- Form column -->
-    <div class="card p-6">
-      <h2 class="text-2xl font-semibold">Create / Edit Profile</h2>
-      <p class="text-sm muted mt-1">Fill your info, preview to see how it looks, then generate a share link.</p>
+<body>
+<div class="shell">
 
-      <form id="profileForm" class="space-y-4 mt-6" onsubmit="event.preventDefault(); saveProfile();">
-        <div class="flex items-center gap-4">
-          <div class="w-20 h-20 rounded-full overflow-hidden avatar-placeholder" id="avatarPreview">
-            <span id="avatarInitials">AB</span>
-          </div>
-          <div class="flex-1">
-            <label class="block text-sm font-medium">Profile picture</label>
-            <input type="file" id="avatarInput" accept="image/*" class="mt-2" />
-            <p class="text-xs muted mt-1">PNG/JPG. If you skip upload the initials are used.</p>
-            <div class="mt-2 flex gap-2">
-              <button type="button" onclick="clearAvatar()" class="px-3 py-1 rounded-md text-sm border">Clear</button>
-              <button type="button" onclick="useInitials()" class="px-3 py-1 rounded-md text-sm border">Use initials</button>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium">Full name</label>
-          <input id="fullName" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Jane Doe" />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium">University</label>
-            <input id="university" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="University of Example" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Major</label>
-            <input id="major" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Aerospace Engineering" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium">Grade Level</label>
-            <input id="grade" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Senior" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Interests</label>
-            <input id="interests" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Rockets, Satellites, PCB design" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium">LinkedIn URL</label>
-          <input id="linkedin" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="https://linkedin.com/in/yourname" />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium">Phone</label>
-            <input id="phone" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="+1 555 555 5555" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Email</label>
-            <input id="email" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="you@example.com" />
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-2">
-          <button type="button" onclick="saveProfile()" class="px-4 py-2 rounded-md bg-[color:var(--brand)] text-white">Save & Preview</button>
-          <button type="button" onclick="generateShareLink()" class="px-4 py-2 rounded-md border">Generate share link</button>
-          <button type="button" onclick="downloadVCard()" class="px-4 py-2 rounded-md border">Download vCard</button>
-          <button type="button" onclick="resetForm()" class="px-4 py-2 rounded-md text-sm muted">Reset</button>
-        </div>
-
-        <div id="generatedArea" class="mt-3 hidden">
-          <label class="block text-sm font-medium">Share link</label>
-          <div class="mt-1 flex gap-2">
-            <input id="shareLink" class="flex-1 block w-full rounded-md border px-3 py-2" readonly />
-            <button class="px-3 py-2 rounded-md border" onclick="copyShareLink()">Copy</button>
-            <button class="px-3 py-2 rounded-md border" onclick="writeToClipboard()">Write (copy) to clipboard</button>
-          </div>
-          <p class="text-xs muted mt-1">Write this URL to an NFC tag (NFC Tools can write a URL record). When opened, it will show your profile and an Edit button to bring the form pre-filled.</p>
-        </div>
-      </form>
+  <div class="card" id="editCard" hidden>
+    <div class="header">
+      <div>
+        <div class="title">Create Your NFC Profile</div>
+        <div class="muted">Fill once → generate a read-only share link (≤ 492 chars total)</div>
+      </div>
+      <span class="pill">Max NFC URL: <strong>492</strong> chars</span>
     </div>
-
-    <!-- Preview column -->
-    <div class="card p-6">
-      <div class="flex items-start justify-between">
-        <div>
-          <h3 class="text-xl font-semibold" id="previewName">Your Name</h3>
-          <p class="text-sm muted" id="previewUni">University · Major</p>
-        </div>
-        <div class="text-sm muted thin">Preview</div>
-      </div>
-
-      <div class="mt-6 border rounded-lg p-4 flex gap-4 items-center">
-        <div class="w-24 h-24 rounded-full overflow-hidden avatar-placeholder" id="previewAvatarCard">
-          <img id="previewAvatarImg" alt="avatar" class="w-full h-full object-cover hidden" />
-          <div id="previewInitials" class="flex items-center justify-center text-xl font-semibold">JD</div>
-        </div>
-
-        <div class="flex-1">
-          <p id="previewMajor" class="font-medium">Major · Grade</p>
-          <p id="previewInterests" class="muted text-sm mt-1">Interests: ...</p>
-
-          <div class="mt-4 grid grid-cols-1 gap-2">
-            <a id="previewLinkedIn" class="inline-flex items-center gap-2 text-sm text-[color:var(--brand)] hover:underline" href="#" target="_blank"></a>
-            <div class="text-sm muted" id="previewContact"></div>
+    <div class="content">
+      <div class="grid">
+        <div class="col-12">
+          <label>Profile Picture</label>
+          <div class="row">
+            <input id="imgUrl" placeholder="Image URL (recommended for smallest link)" />
+            <input type="file" id="imgFile" accept="image/*" class="col-6" />
+          </div>
+          <div class="note" style="margin-top:6px;">
+            Tip: Using an external image URL keeps your NFC link shortest. Uploading a photo is auto-shrunk to 64×64 but may be dropped if the link would exceed 492 characters.
           </div>
         </div>
-      </div>
 
-      <div class="mt-6 flex gap-3">
-        <button onclick="enterEditMode()" class="px-4 py-2 rounded-md bg-white border">Edit profile</button>
-        <button onclick="showQRCode()" class="px-4 py-2 rounded-md border">Show QR</button>
-      </div>
+        <div class="col-6">
+          <label>Full Name</label>
+          <input id="name" placeholder="e.g., Ashwin Rajkumar" maxlength="80" />
+        </div>
+        <div class="col-6">
+          <label>University</label>
+          <input id="univ" placeholder="e.g., USC" maxlength="80" />
+        </div>
 
-      <div id="qrArea" class="mt-6 hidden"></div>
+        <div class="col-6">
+          <label>Major</label>
+          <input id="major" placeholder="e.g., Astronautical Engineering" maxlength="80" />
+        </div>
+        <div class="col-6">
+          <label>Grade Level</label>
+          <input id="grade" placeholder="e.g., M.S. Candidate" maxlength="60" />
+        </div>
+
+        <div class="col-12">
+          <label>Interests</label>
+          <textarea id="interests" placeholder="Comma-separated: propulsion, EDL, kinetic launch…" maxlength="200"></textarea>
+        </div>
+
+        <div class="col-6">
+          <label>LinkedIn URL</label>
+          <input id="linkedin" placeholder="https://www.linkedin.com/in/username" maxlength="120" />
+        </div>
+        <div class="col-3">
+          <label>Phone</label>
+          <input id="phone" placeholder="+1 555 123 4567" maxlength="32" />
+        </div>
+        <div class="col-3">
+          <label>Email</label>
+          <input id="email" placeholder="you@example.com" maxlength="120" />
+        </div>
+
+        <div class="col-12">
+          <div class="row">
+            <button class="btn primary" id="genBtn">Generate Link</button>
+            <button class="btn" id="copyBtn" disabled>Copy Link</button>
+            <span class="muted" id="status">Fill your info and generate.</span>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label>Link Length</label>
+          <div class="meter"><span id="meterBar"></span></div>
+          <div class="row" style="justify-content:space-between; margin-top:8px">
+            <div class="muted" id="lenReadout">0 / 492</div>
+            <div class="muted" id="hostHint"></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <input id="resultUrl" readonly placeholder="Your share URL will appear here…" />
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Small inline script -->
-  <script>
-    // Helper: base64 encode/decode for URL-friendly encoding
-    function base64Encode(str) {
-      return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    }
-    function base64Decode(b64) {
-      b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
-      // pad
-      while (b64.length % 4) b64 += '=';
-      return decodeURIComponent(escape(atob(b64)));
-    }
+  <div class="card" id="viewCard" hidden>
+    <div class="header">
+      <div class="title">Profile</div>
+      <div class="muted">Read-only contact card</div>
+    </div>
+    <div class="content" id="viewContent">
+      <!-- Filled by script -->
+    </div>
+  </div>
 
-    // Profile data structure
-    function defaultProfile(){
-      return {
-        fullName: '',
-        university: '',
-        major: '',
-        grade: '',
-        interests: '',
-        linkedin: '',
-        phone: '',
-        email: '',
-        avatarDataUrl: '' // data:image/png;base64,...
-      };
-    }
+  <div class="card center" id="errorCard" hidden>
+    <div>
+      <div class="title" style="margin-bottom:8px;">Invalid or missing data</div>
+      <div class="muted">The link may be corrupted or fields are missing.</div>
+    </div>
+  </div>
 
-    // DOM refs
-    const form = document.getElementById('profileForm');
-    const inputs = {
-      fullName: document.getElementById('fullName'),
-      university: document.getElementById('university'),
-      major: document.getElementById('major'),
-      grade: document.getElementById('grade'),
-      interests: document.getElementById('interests'),
-      linkedin: document.getElementById('linkedin'),
-      phone: document.getElementById('phone'),
-      email: document.getElementById('email'),
-      avatarInput: document.getElementById('avatarInput')
+</div>
+
+<script>
+/* ---------- helpers: base64url ---------- */
+function b64urlFromUint8(uint8){
+  let bin = '';
+  for (let i=0;i<uint8.length;i++) bin += String.fromCharCode(uint8[i]);
+  const b64 = btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return b64;
+}
+function uint8FromB64url(b64url){
+  const b64 = b64url.replace(/-/g,'+').replace(/_/g,'/') + '==='.slice((b64url.length+3)%4);
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+  return u8;
+}
+async function encodePayload(fields){
+  // fields order: [name,univ,major,grade,interests,linkedin,phone,email,imgUrl,imgData]
+  // Compact serialization: join by ASCII Unit Separator (31) and strip empties at tail
+  // prefix version "1|"
+  const SEP = String.fromCharCode(31);
+  // Trim trailing empty fields to save space
+  let arr = fields.slice();
+  while(arr.length && (arr[arr.length-1]===null || arr[arr.length-1]==='')) arr.pop();
+  const text = '1' + SEP + arr.join(SEP);
+  const u8 = new TextEncoder().encode(text);
+  return b64urlFromUint8(u8);
+}
+function decodePayload(b64){
+  const u8 = uint8FromB64url(b64);
+  const text = new TextDecoder().decode(u8);
+  const SEP = String.fromCharCode(31);
+  const parts = text.split(SEP);
+  if (!parts.length || parts[0]!=='1') return null;
+  const f = parts.slice(1);
+  // pad to 10 fields
+  while (f.length<10) f.push('');
+  return {
+    name:f[0]||'', univ:f[1]||'', major:f[2]||'', grade:f[3]||'',
+    interests:f[4]||'', linkedin:f[5]||'', phone:f[6]||'', email:f[7]||'',
+    imgUrl:f[8]||'', imgData:f[9]||''
+  };
+}
+
+/* ---------- image downscale (optional) ---------- */
+function loadImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+async function downscaleToDataURL(dataUrl, size=64){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, size, size);
+      // very aggressive quality to keep tiny
+      resolve(canvas.toDataURL('image/jpeg', 0.4));
     };
+    img.crossOrigin = 'anonymous';
+    img.src = dataUrl;
+  });
+}
 
-    const preview = {
-      name: document.getElementById('previewName'),
-      uni: document.getElementById('previewUni'),
-      major: document.getElementById('previewMajor'),
-      interests: document.getElementById('previewInterests'),
-      linkedIn: document.getElementById('previewLinkedIn'),
-      contact: document.getElementById('previewContact'),
-      avatarImg: document.getElementById('previewAvatarImg'),
-      initials: document.getElementById('previewInitials'),
-      avatarCard: document.getElementById('previewAvatarCard')
-    };
+/* ---------- UI logic ---------- */
+const MAX_URL = 492;
+const editCard = document.getElementById('editCard');
+const viewCard = document.getElementById('viewCard');
+const errorCard = document.getElementById('errorCard');
 
-    const avatarPreviewSmall = document.getElementById('avatarPreview');
-    const avatarInitialsSmall = document.getElementById('avatarInitials');
+const inputs = {
+  name: document.getElementById('name'),
+  univ: document.getElementById('univ'),
+  major: document.getElementById('major'),
+  grade: document.getElementById('grade'),
+  interests: document.getElementById('interests'),
+  linkedin: document.getElementById('linkedin'),
+  phone: document.getElementById('phone'),
+  email: document.getElementById('email'),
+  imgUrl: document.getElementById('imgUrl'),
+  imgFile: document.getElementById('imgFile')
+};
+const genBtn = document.getElementById('genBtn');
+const copyBtn = document.getElementById('copyBtn');
+const resultUrl = document.getElementById('resultUrl');
+const statusEl = document.getElementById('status');
+const meterBar = document.getElementById('meterBar');
+const lenReadout = document.getElementById('lenReadout');
+const hostHint = document.getElementById('hostHint');
 
-    let profile = defaultProfile();
+function setLen(len){
+  const pct = Math.min(100, (len / MAX_URL) * 100);
+  meterBar.style.width = pct + '%';
+  meterBar.style.background = len > MAX_URL ? 'linear-gradient(90deg, #ef4444, #f59e0b)' : '';
+  lenReadout.textContent = `${len} / ${MAX_URL}`;
+}
 
-    // Load profile from URL hash if present
-    function loadFromHash() {
-      if (location.hash && location.hash.startsWith('#p=')) {
-        try {
-          const b64 = location.hash.slice(3);
-          const json = base64Decode(b64);
-          const obj = JSON.parse(json);
-          profile = Object.assign(defaultProfile(), obj);
-          populateForm();
-          renderPreview();
-          // show generated area
-          document.getElementById('generatedArea').classList.remove('hidden');
-          document.getElementById('shareLink').value = location.href;
-        } catch (e) {
-          console.warn('Could not decode profile from URL', e);
-        }
-      } else {
-        // If localStorage saved, load it
-        const saved = localStorage.getItem('nfc_profile_v1');
-        if (saved) {
-          try {
-            profile = Object.assign(defaultProfile(), JSON.parse(saved));
-            populateForm();
-            renderPreview();
-          } catch(e) { console.warn(e); }
-        }
-      }
+function normalizeLinkedIn(url){
+  if (!url) return '';
+  try{
+    url = url.trim();
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const u = new URL(url);
+    if (u.hostname.includes('linkedin.')) {
+      // compress www subdomain
+      u.hostname = 'linkedin.com';
+      // remove tracking params
+      u.search = '';
     }
+    return u.toString();
+  }catch{ return url; }
+}
 
-    function populateForm() {
-      inputs.fullName.value = profile.fullName || '';
-      inputs.university.value = profile.university || '';
-      inputs.major.value = profile.major || '';
-      inputs.grade.value = profile.grade || '';
-      inputs.interests.value = profile.interests || '';
-      inputs.linkedin.value = profile.linkedin || '';
-      inputs.phone.value = profile.phone || '';
-      inputs.email.value = profile.email || '';
-      if (profile.avatarDataUrl) {
-        showAvatar(profile.avatarDataUrl);
-      } else {
-        showInitials(profile.fullName || '');
-      }
+async function buildLink(){
+  const originPath = location.origin + location.pathname; // where this file is hosted
+  hostHint.textContent = `Host path length: ${originPath.length} chars`;
+
+  const name = inputs.name.value.trim();
+  const univ = inputs.univ.value.trim();
+  const major = inputs.major.value.trim();
+  const grade = inputs.grade.value.trim();
+  const interests = inputs.interests.value.trim();
+  const linkedin = normalizeLinkedIn(inputs.linkedin.value.trim());
+  const phone = inputs.phone.value.trim();
+  const email = inputs.email.value.trim();
+  const imgUrl = inputs.imgUrl.value.trim();
+
+  // handle image: prefer URL, else uploaded file (downscale)
+  let imgData = '';
+  if (!imgUrl && inputs.imgFile.files && inputs.imgFile.files[0]) {
+    const raw = await loadImage(inputs.imgFile.files[0]);
+    imgData = await downscaleToDataURL(raw, 64); // might be dropped later if too long
+  }
+
+  // First attempt: full payload
+  let payload = await encodePayload([name,univ,major,grade,interests,linkedin,phone,email,imgUrl,imgData]);
+  let url = originPath + '#' + payload;
+  // If too long, try fallback steps progressively:
+  let workingInterests = interests;
+  let workingImgData = imgData;
+
+  if (url.length > MAX_URL) {
+    // Step 1: drop inline image data
+    workingImgData = '';
+    payload = await encodePayload([name,univ,major,grade,workingInterests,linkedin,phone,email,imgUrl,workingImgData]);
+    url = originPath + '#' + payload;
+  }
+  if (url.length > MAX_URL && workingInterests) {
+    // Step 2: trim interests aggressively
+    workingInterests = workingInterests.slice(0, 60);
+    payload = await encodePayload([name,univ,major,grade,workingInterests,linkedin,phone,email,imgUrl,workingImgData]);
+    url = originPath + '#' + payload;
+  }
+  if (url.length > MAX_URL && linkedin) {
+    // Step 3: compress LinkedIn vanity by removing protocol for display (we keep minimal host/path)
+    const li = linkedin.replace(/^https?:\/\//,'');
+    payload = await encodePayload([name,univ,major,grade,workingInterests,li,phone,email,imgUrl,workingImgData]);
+    url = originPath + '#' + payload;
+  }
+  if (url.length > MAX_URL) {
+    // Step 4: final trims on university/major/grade
+    const u2 = univ.slice(0,40), m2 = major.slice(0,40), g2 = grade.slice(0,30);
+    payload = await encodePayload([name,u2,m2,g2,workingInterests,linkedin.replace(/^https?:\/\//,''),phone,email,imgUrl,workingImgData]);
+    url = originPath + '#' + payload;
+  }
+
+  setLen(url.length);
+  resultUrl.value = url;
+  copyBtn.disabled = false;
+
+  if (url.length <= MAX_URL) {
+    statusEl.textContent = `Success: link length ${url.length} chars (≤ ${MAX_URL}).`;
+    statusEl.className = 'muted';
+  } else {
+    statusEl.textContent = `Too long by ${url.length - MAX_URL} chars. Try shortening Interests/LinkedIn or host at a shorter path.`;
+    statusEl.className = 'muted';
+  }
+}
+
+genBtn.addEventListener('click', async (e)=>{
+  e.preventDefault();
+  genBtn.disabled = true;
+  statusEl.textContent = 'Generating…';
+  await buildLink();
+  genBtn.disabled = false;
+});
+
+copyBtn.addEventListener('click', async ()=>{
+  if (!resultUrl.value) return;
+  try {
+    await navigator.clipboard.writeText(resultUrl.value);
+    statusEl.textContent = 'Copied! Write this URL to your NFC tag.';
+    statusEl.className = 'muted';
+  } catch {
+    resultUrl.select(); document.execCommand('copy');
+    statusEl.textContent = 'Copied (fallback).';
+  }
+});
+
+/* ---------- View mode rendering ---------- */
+function el(tag, attrs={}, children=[]){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)){
+    if (k==='class') e.className = v;
+    else if (k==='html') e.innerHTML = v;
+    else e.setAttribute(k,v);
+  }
+  (Array.isArray(children)?children:[children]).filter(Boolean).forEach(c=>{
+    if (typeof c==='string') e.appendChild(document.createTextNode(c));
+    else e.appendChild(c);
+  });
+  return e;
+}
+
+function initials(name){
+  if (!name) return '';
+  return name.split(/\s+/).slice(0,2).map(s=>s[0]?.toUpperCase()||'').join('');
+}
+
+function safeLink(url){
+  if (!url) return '';
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  return url;
+}
+
+function renderView(data){
+  const wrap = document.getElementById('viewContent');
+  wrap.innerHTML = '';
+
+  const top = el('div',{class:'vwrap'});
+  const av = el('div',{class:'avatar'});
+  if (data.imgUrl) {
+    av.style.backgroundImage = `url("${data.imgUrl.replace(/"/g,'%22')}")`;
+  } else if (data.imgData) {
+    av.style.backgroundImage = `url("${data.imgData}")`;
+  } else {
+    av.textContent = initials(data.name);
+  }
+  const head = el('div',{},[
+    el('div',{class:'title'}, data.name || 'Unnamed'),
+    el('div',{class:'muted'}, data.univ || '')
+  ]);
+  top.append(av, head);
+
+  const grid = el('div',{class:'vgrid'});
+
+  function kv(label, value, cols=6, isLink=false){
+    if (!value) return null;
+    const box = el('div',{class:'kv', style:`grid-column:span ${cols}`},[
+      el('small',{},label),
+      isLink ? el('a',{class:'link', href: safeLink(value), target:'_blank', rel:'noopener'}, value)
+             : el('div',{},value)
+    ]);
+    return box;
+  }
+
+  grid.append(
+    kv('Major', data.major, 6),
+    kv('Grade Level', data.grade, 6),
+    kv('Interests', data.interests, 12),
+    kv('LinkedIn', data.linkedin, 12, true),
+    kv('Phone', data.phone, 6),
+    kv('Email', data.email, 6)
+  );
+
+  wrap.append(top, grid);
+}
+
+/* ---------- Boot ---------- */
+(function init(){
+  const hash = location.hash.replace(/^#/,'').trim();
+  if (hash){
+    // VIEW MODE
+    try{
+      const data = decodePayload(hash);
+      if (!data) throw new Error('bad payload');
+      renderView(data);
+      viewCard.hidden = false;
+    }catch(e){
+      console.error(e);
+      errorCard.hidden = false;
     }
-
-    function saveProfile() {
-      // read current inputs into profile
-      profile.fullName = inputs.fullName.value.trim();
-      profile.university = inputs.university.value.trim();
-      profile.major = inputs.major.value.trim();
-      profile.grade = inputs.grade.value.trim();
-      profile.interests = inputs.interests.value.trim();
-      profile.linkedin = inputs.linkedin.value.trim();
-      profile.phone = inputs.phone.value.trim();
-      profile.email = inputs.email.value.trim();
-      // avatarDataUrl kept from upload handler
-
-      // persist to localStorage for convenience
-      try {
-        localStorage.setItem('nfc_profile_v1', JSON.stringify(profile));
-      } catch (e) {
-        console.warn('Could not save to localStorage', e);
-      }
-
-      renderPreview();
-      // unhide generated area if user already generated a link
-      // (we don't auto-generate links)
-    }
-
-    function renderPreview() {
-      preview.name.textContent = profile.fullName || 'Your Name';
-      preview.uni.textContent = (profile.university ? profile.university + ' · ' : '') + (profile.major || '');
-      preview.major.textContent = (profile.major || 'Major') + (profile.grade ? ' · ' + profile.grade : '');
-      preview.interests.textContent = profile.interests ? 'Interests: ' + profile.interests : 'Interests: —';
-      if (profile.linkedin) {
-        preview.linkedIn.href = profile.linkedin;
-        preview.linkedIn.textContent = 'LinkedIn · ' + (profile.linkedin.replace(/^https?:\/\//,''));
-        preview.linkedIn.classList.remove('hidden');
-      } else {
-        preview.linkedIn.href = '#';
-        preview.linkedIn.textContent = '';
-        preview.linkedIn.classList.add('hidden');
-      }
-      const contactParts = [];
-      if (profile.phone) contactParts.push('📞 ' + profile.phone);
-      if (profile.email) contactParts.push('✉️ ' + profile.email);
-      preview.contact.innerHTML = contactParts.join(' · ');
-
-      if (profile.avatarDataUrl) {
-        preview.avatarImg.src = profile.avatarDataUrl;
-        preview.avatarImg.classList.remove('hidden');
-        preview.initials.classList.add('hidden');
-      } else {
-        // initials
-        let initials = initialsFromName(profile.fullName);
-        preview.initials.textContent = initials;
-        preview.initials.classList.remove('hidden');
-        preview.avatarImg.classList.add('hidden');
-      }
-
-      // small avatar
-      if (profile.avatarDataUrl) {
-        avatarPreviewSmall.innerHTML = '<img src="' + profile.avatarDataUrl + '" class="w-full h-full object-cover" />';
-      } else {
-        avatarPreviewSmall.innerHTML = '<div class="flex items-center justify-center text-base font-semibold">' + (initialsFromName(profile.fullName)) + '</div>';
-      }
-    }
-
-    // Avatar upload handling
-    inputs.avatarInput.addEventListener('change', (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        profile.avatarDataUrl = ev.target.result;
-        saveProfile();
-      }
-      reader.readAsDataURL(f);
-    });
-
-    function showAvatar(dataUrl) {
-      profile.avatarDataUrl = dataUrl;
-      saveProfile();
-    }
-
-    function clearAvatar() {
-      profile.avatarDataUrl = '';
-      saveProfile();
-    }
-
-    function useInitials() {
-      profile.avatarDataUrl = '';
-      saveProfile();
-    }
-
-    function initialsFromName(name) {
-      if (!name) return '??';
-      const parts = name.trim().split(/\s+/).filter(Boolean);
-      if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
-      return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
-    }
-
-    // Generate a share link: encode profile JSON into URL hash
-    function generateShareLink() {
-      // ensure latest profile saved
-      saveProfile();
-      const json = JSON.stringify(profile);
-      const b64 = base64Encode(json);
-      const currentOrigin = window.location.origin + window.location.pathname;
-      const shareUrl = currentOrigin + '#p=' + b64;
-      document.getElementById('shareLink').value = shareUrl;
-      document.getElementById('generatedArea').classList.remove('hidden');
-      // set location.hash for current window (optional)
-      // location.hash = 'p=' + b64;
-      // advise user to copy link
-      // also display tiny QR code if desired
-      return shareUrl;
-    }
-
-    function copyShareLink() {
-      const link = document.getElementById('shareLink').value;
-      if (!link) return;
-      navigator.clipboard.writeText(link).then(()=> {
-        alert('Link copied to clipboard. Use NFC Tools (or similar) to write it to a tag.');
-      }).catch(()=> alert('Could not copy link automatically. Select and copy manually.'));
-    }
-
-    function writeToClipboard() {
-      copyShareLink();
-    }
-
-    function copyText(text) {
-      navigator.clipboard.writeText(text);
-    }
-
-    function resetForm() {
-      if (!confirm('Reset form and clear stored profile?')) return;
-      profile = defaultProfile();
-      localStorage.removeItem('nfc_profile_v1');
-      populateForm();
-      renderPreview();
-      document.getElementById('generatedArea').classList.add('hidden');
-      document.getElementById('shareLink').value = '';
-    }
-
-    // Edit mode: focus form
-    function enterEditMode() {
-      window.scrollTo({top:0,behavior:'smooth'});
-      // nothing else - form is always present; optionally focus the name input
-      inputs.fullName.focus();
-    }
-
-    // vCard generator for convenience
-    function downloadVCard() {
-      saveProfile();
-      const n = profile.fullName || '';
-      const email = profile.email || '';
-      const tel = profile.phone || '';
-      const org = profile.university || '';
-      const title = profile.major || '';
-      let card = 'BEGIN:VCARD\\nVERSION:3.0\\n';
-      if (n) card += 'FN:'+escapeV(n)+'\\n';
-      if (org) card += 'ORG:'+escapeV(org)+'\\n';
-      if (title) card += 'TITLE:'+escapeV(title)+'\\n';
-      if (tel) card += 'TEL;TYPE=CELL:'+escapeV(tel)+'\\n';
-      if (email) card += 'EMAIL;TYPE=INTERNET:'+escapeV(email)+'\\n';
-      if (profile.linkedin) card += 'URL:'+escapeV(profile.linkedin)+'\\n';
-      card += 'END:VCARD';
-      const blob = new Blob([card.replace(/\\\\n/g,'\\n')], {type:'text/vcard'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = (profile.fullName ? profile.fullName.replace(/\s+/g,'_') : 'contact') + '.vcf';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-    function escapeV(s) { return (s||'').replace(/\\n/g,'\\\\n'); }
-
-    // Small QR generator (using canvas) - encodes the share link; simple implementation
-    function showQRCode() {
-      const link = document.getElementById('shareLink').value || generateShareLink();
-      const qrArea = document.getElementById('qrArea');
-      qrArea.innerHTML = '';
-      qrArea.classList.remove('hidden');
-
-      // Use a tiny minimal QR generator (no external libs)
-      // We'll use a data-uri from Google's Chart API as fallback (fast)
-      // NOTE: Google Chart API is deprecated but still works for simple QR images.
-      // If offline, fallback to text link.
-      try {
-        const encoded = encodeURIComponent(link);
-        const img = document.createElement('img');
-        img.src = 'https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=' + encoded;
-        img.alt = 'QR code';
-        img.className = 'rounded-md border';
-        qrArea.appendChild(img);
-
-        const p = document.createElement('p');
-        p.className = 'text-xs muted mt-2';
-        p.textContent = 'Scan this QR to open the share link.';
-        qrArea.appendChild(p);
-      } catch (e) {
-        qrArea.textContent = link;
-      }
-    }
-
-    // Populate on load
-    loadFromHash();
-
-    // Accept edit by pressing Enter on inputs? no — just keep simple
-
-    // Make Enter on form behave like save
-    form.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Enter' && !ev.target.matches('textarea')) {
-        ev.preventDefault();
-        saveProfile();
-      }
-    });
-
-    // populate initial preview
-    renderPreview();
-
-    // Expose a few functions for dev console
-    window.generateShareLink = generateShareLink;
-    window.saveProfile = saveProfile;
-    window.clearAvatar = clearAvatar;
-    window.useInitials = useInitials;
-    window.resetForm = resetForm;
-  </script>
+  } else {
+    // EDIT MODE
+    editCard.hidden = false;
+    setLen( (location.origin + location.pathname).length ); // initial
+  }
+})();
+</script>
 </body>
 </html>
+
