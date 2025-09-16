@@ -5,83 +5,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Smart NFC Contact</title>
 <style>
-  :root{
-    --bg:#0f1115; --card:#151922; --muted:#9aa3b2; --text:#e7ebf3; --accent:#7aa2ff; --ring:#232a36;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-       background:linear-gradient(180deg,#0b0e13, #131826 45%, #0b0e13);}
-  a{color:inherit}
-  .container{max-width:980px;margin:24px auto;padding:16px}
-  .shell{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
-  @media (max-width:920px){.shell{grid-template-columns:1fr}}
-  .phone{
-    background:#0a0d12;border-radius:36px;box-shadow:0 20px 50px rgba(0,0,0,.55);
-    padding:18px;max-width:420px;margin:auto;border:1px solid #1a2130;
-  }
-  .screen{background:#0b0f18;border-radius:28px;overflow:hidden}
-  .hero{
-    height:220px;background:radial-gradient(80% 70% at 50% 20%, #293149, #0e1420);
-    display:flex;align-items:flex-end;padding:16px 16px 0 16px;position:relative;
-  }
-  .badge{
-    position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);
-    color:#dfe6f5;font-size:12px;padding:6px 10px;border-radius:20px;
-  }
-  .card{
-    margin:-24px 12px 16px;background:linear-gradient(180deg, #1a2130, #121826);
-    border:1px solid #232b3c;border-radius:22px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)
-  }
-  .name{display:flex;align-items:center;gap:10px}
-  .name h2{margin:0;color:#fff;font-weight:700;font-size:22px;letter-spacing:.2px}
-  .verify{width:16px;height:16px;background:#7aa2ff;border-radius:50%;
-         display:inline-flex;align-items:center;justify-content:center;color:#08122a;font-size:12px}
-  .role{color:var(--muted);margin:2px 0 10px 0;font-size:14px}
-  .actions{display:flex;gap:10px;margin:6px 0 12px}
-  .iconbtn{
-    width:42px;height:42px;border-radius:14px;border:1px solid #2a3346;
-    display:flex;align-items:center;justify-content:center;color:#c7d0e0;
-    background:linear-gradient(180deg,#192032,#0f1422);cursor:pointer;transition:.15s transform;
-  }
-  .iconbtn:hover{transform:translateY(-2px)}
-  .save{
-    margin-top:6px;width:100%;height:48px;border-radius:14px;border:1px solid #2a3346;
-    color:#eaf0ff;background:linear-gradient(180deg,#1f2a44,#121a2f);
-    font-weight:600;font-size:15px;cursor:pointer;
-  }
+  /* --- Clean UI Refresh ------------------------------------------- */
+:root{
+  --bg:#0b0f16;             /* darker canvas */
+  --card:#0f1420;           /* card surface */
+  --stroke:#222a3a;         /* subtle borders */
+  --muted:#9aa3b2;
+  --text:#eef2ff;
+  --accent:#7aa2ff;
+}
 
-  .grid{display:grid;grid-template-columns:repeat(3,100px);gap:16px;margin:8px 0 2px}
-  .app{
-    background:#0f1524;border:1px solid #232c40;border-radius:18px;height:78px;
-    display:flex;align-items:center;justify-content:center;color:#cdd6e6;font-size:12px;
-    flex-direction:column;gap:8px;
-  }
-  .dot{width:30px;height:30px;border-radius:10px;background:#222d45;border:1px solid #2a3650}
-  .label{font-size:11px;color:#9aa5bb}
+body{
+  background: radial-gradient(60% 55% at 70% 0%, #131a2a 0%, #0b0f16 55%) fixed;
+}
 
-  /* Editor */
-  .panel{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:18px}
-  .panel h3{margin:0 0 12px 0;color:var(--text)}
-  .field{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center;margin:10px 0}
-  .field label{color:#c8d2e3;font-size:13px}
-  .field input, .field textarea{
-    width:100%;height:44px;border-radius:12px;border:1px solid #2a3346;background:#0f1524;
-    color:#e7efff;padding:0 12px;outline:none;
-  }
-  .field textarea{height:70px;padding-top:10px;resize:vertical}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .primary{
-    background:linear-gradient(180deg,#2c5bff,#2247cc);border:none;color:white;
-    height:44px;border-radius:12px;padding:0 14px;font-weight:600;cursor:pointer;
-  }
-  .ghost{background:#121827;border:1px solid #2a3346;color:#d6e0f5;height:44px;border-radius:12px;padding:0 12px}
-  .urlbox{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:10px}
-  .hint{color:#9aa3b2;font-size:12px;margin-top:4px}
-  .lenok{color:#9ee493}
-  .lenbad{color:#ff9aa6}
-  .hide{display:none !important}
-  footer{color:#6f7a90;font-size:12px;text-align:center;margin-top:18px}
+/* Phone shell */
+.phone{
+  background: linear-gradient(180deg,#0a0f18,#090d14);
+  border: 1px solid #121827;
+  border-radius: 28px;
+  padding: 14px;
+  box-shadow: 0 22px 60px rgba(0,0,0,.55);
+}
+
+/* Screen/hero */
+.screen{ border-radius: 22px; overflow: hidden; }
+.hero{
+  height: 180px;
+  background: linear-gradient(180deg,#1b2335 0%, #0e1422 90%);
+}
+.badge{
+  top: 16px; right: 16px;
+  color:#ced6ea; border-color:#233047;
+  background: rgba(255,255,255,.05);
+}
+
+/* Cards */
+.card{
+  margin: -20px 14px 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(15,20,32,0.82);
+  border: 1px solid var(--stroke);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+}
+
+/* Title/role */
+.name h2{
+  font-size: 20px; line-height: 1.2; letter-spacing:.2px;
+}
+.role{
+  margin-top: 4px;
+  color: #a9b4c8; font-size: 13.5px;
+}
+
+/* Primary actions */
+.actions{
+  display:flex; gap: 10px; margin: 12px 0 10px;
+}
+.iconbtn{
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg,#151c2b,#0f1623);
+  color:#d7def0;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.03);
+}
+.iconbtn:hover{ transform: translateY(-1px); }
+
+/* Save button */
+.save{
+  height: 46px; border-radius: 14px;
+  font-size: 15px; font-weight: 600;
+  color: #ecf1ff;
+  background: linear-gradient(180deg,#1f2b45,#121a2f);
+  border: 1px solid var(--stroke);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* Chip grid (replaces bulky squares) */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.app{
+  height:auto; padding:10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(18,24,39,.65);
+  display:flex; align-items:center; gap:8px;
+}
+.app .dot{
+  width:20px; height:20px; border-radius:7px;
+  background:#1a2336; border:1px solid #24314a;
+}
+.app .label{
+  color:#c8d2e3; font-size:12.5px; line-height:1;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* Panel (editor) polish */
+.panel{
+  background: rgba(18,24,39,.75);
+  border-color: var(--stroke);
+  backdrop-filter: blur(8px);
+  border-radius:16px;
+}
+.field input, .field textarea{
+  background:#0d1320;border:1px solid #1f2738;border-radius:12px;
+}
+.primary{
+  background: linear-gradient(180deg,#2b58ff,#2346cc);
+  box-shadow: 0 6px 18px rgba(42,88,255,.22);
+}
+.ghost{ background:#0e1424; border-color:#1f2738; }
 </style>
 </head>
 <body>
