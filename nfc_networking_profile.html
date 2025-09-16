@@ -1,458 +1,402 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Smart NFC Contact</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NFC Profile</title>
 <style>
-  /* --- Clean UI Refresh ------------------------------------------- */
-:root{
-  --bg:#0b0f16;             /* darker canvas */
-  --card:#0f1420;           /* card surface */
-  --stroke:#222a3a;         /* subtle borders */
-  --muted:#9aa3b2;
-  --text:#eef2ff;
-  --accent:#7aa2ff;
-}
-
-body{
-  background: radial-gradient(60% 55% at 70% 0%, #131a2a 0%, #0b0f16 55%) fixed;
-}
-
-/* Phone shell */
-.phone{
-  background: linear-gradient(180deg,#0a0f18,#090d14);
-  border: 1px solid #121827;
-  border-radius: 28px;
-  padding: 14px;
-  box-shadow: 0 22px 60px rgba(0,0,0,.55);
-}
-
-/* Screen/hero */
-.screen{ border-radius: 22px; overflow: hidden; }
-.hero{
-  height: 180px;
-  background: linear-gradient(180deg,#1b2335 0%, #0e1422 90%);
-}
-.badge{
-  top: 16px; right: 16px;
-  color:#ced6ea; border-color:#233047;
-  background: rgba(255,255,255,.05);
-}
-
-/* Cards */
-.card{
-  margin: -20px 14px 14px;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(15,20,32,0.82);
-  border: 1px solid var(--stroke);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  backdrop-filter: blur(8px);
-}
-
-/* Title/role */
-.name h2{
-  font-size: 20px; line-height: 1.2; letter-spacing:.2px;
-}
-.role{
-  margin-top: 4px;
-  color: #a9b4c8; font-size: 13.5px;
-}
-
-/* Primary actions */
-.actions{
-  display:flex; gap: 10px; margin: 12px 0 10px;
-}
-.iconbtn{
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  border: 1px solid var(--stroke);
-  background: linear-gradient(180deg,#151c2b,#0f1623);
-  color:#d7def0;
-  box-shadow: inset 0 -1px 0 rgba(255,255,255,.03);
-}
-.iconbtn:hover{ transform: translateY(-1px); }
-
-/* Save button */
-.save{
-  height: 46px; border-radius: 14px;
-  font-size: 15px; font-weight: 600;
-  color: #ecf1ff;
-  background: linear-gradient(180deg,#1f2b45,#121a2f);
-  border: 1px solid var(--stroke);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-}
-
-/* Chip grid (replaces bulky squares) */
-.grid{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.app{
-  height:auto; padding:10px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  background: rgba(18,24,39,.65);
-  display:flex; align-items:center; gap:8px;
-}
-.app .dot{
-  width:20px; height:20px; border-radius:7px;
-  background:#1a2336; border:1px solid #24314a;
-}
-.app .label{
-  color:#c8d2e3; font-size:12.5px; line-height:1;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-
-/* Panel (editor) polish */
-.panel{
-  background: rgba(18,24,39,.75);
-  border-color: var(--stroke);
-  backdrop-filter: blur(8px);
-  border-radius:16px;
-}
-.field input, .field textarea{
-  background:#0d1320;border:1px solid #1f2738;border-radius:12px;
-}
-.primary{
-  background: linear-gradient(180deg,#2b58ff,#2346cc);
-  box-shadow: 0 6px 18px rgba(42,88,255,.22);
-}
-.ghost{ background:#0e1424; border-color:#1f2738; }
+  :root{
+    --bg1:#7f1d1d; /* red-800 */
+    --bg2:#ea580c; /* orange-600 */
+    --bg3:#f59e0b; /* yellow-500 */
+    --white:255,255,255;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                 Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    background: radial-gradient(1200px 800px at 20% 10%, rgba(var(--white),0.08), transparent 60%),
+                radial-gradient(800px 800px at 80% 80%, rgba(255,204,0,0.12), transparent 60%),
+                linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+    display:flex; align-items:center; justify-content:center; padding:16px;
+    color:#fff;
+  }
+  .orb{position:fixed; border-radius:999px; filter:blur(40px); opacity:.8; pointer-events:none}
+  .orb.o1{top:20%; left:20%; width:260px; height:260px; background:rgba(255,255,255,.12); animation:blob 7s infinite}
+  .orb.o2{bottom:20%; right:20%; width:200px; height:200px; background:rgba(255,215,0,.18); animation:blob 7s infinite 2s}
+  .orb.o3{top:75%; left:50%; width:140px; height:140px; background:rgba(239,68,68,.18); animation:blob 7s infinite 4s}
+  @keyframes blob{
+    0%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(30px,-40px) scale(1.06)}
+    66%{transform:translate(-20px,20px) scale(.94)}
+    100%{transform:translate(0,0) scale(1)}
+  }
+  .wrap{position:relative; width:100%; max-width:780px}
+  .card{
+    backdrop-filter: blur(20px);
+    background: rgba(var(--white),0.10);
+    border: 1px solid rgba(var(--white),0.35);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .pad{padding:24px}
+  .title{font-weight:800; font-size:24px; letter-spacing:.2px}
+  .subtle{color:rgba(var(--white),0.8)}
+  .row{display:flex; gap:16px}
+  .col{flex:1}
+  .input, .textarea, .select, .readonly{
+    width:100%;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px solid rgba(var(--white),0.4);
+    background: rgba(255,255,255,0.18);
+    color:#fff; outline:none;
+  }
+  .input::placeholder,.textarea::placeholder{color:rgba(255,255,255,.6)}
+  .textarea{min-height:110px; resize:vertical}
+  label{display:block; margin:12px 0 6px; font-weight:600}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 20px; border:0; border-radius:14px; cursor:pointer;
+    font-weight:700; color:#fff;
+    background: linear-gradient(90deg, #7c3aed, #db2777);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .btn:hover{filter:brightness(1.03)}
+  .btn:active{transform:translateY(1px)}
+  .btn-outline{
+    background: rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.45);
+  }
+  .footer-actions{display:flex; gap:12px; justify-content:flex-end; margin-top:18px}
+  .copywrap{position:relative}
+  .copybtn{
+    position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    background:transparent; border:0; color:#fff; cursor:pointer; padding:6px;
+  }
+  .badge{
+    display:inline-block; padding:6px 10px; border-radius:999px; font-weight:600;
+    background: rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.4);
+    margin-bottom:16px;
+  }
+  .center{text-align:center}
+  .hidden{display:none}
+  .avatar{
+    width:128px; height:128px; border-radius:999px; overflow:hidden; margin:0 auto 16px;
+    background:linear-gradient(135deg,#a78bfa,#f472b6);
+    border:1px solid rgba(255,255,255,.45); padding:4px;
+  }
+  .avatar>img{width:100%; height:100%; object-fit:cover; border-radius:999px}
+  .section{padding:0 24px 24px}
+  .pill{display:inline-flex; align-items:center; gap:8px; margin:0 auto 12px; opacity:.9}
+  .kicker{font-size:14px; color:rgba(255,255,255,.85)}
+  .muted{color:rgba(255,255,255,.75)}
+  .warn{color:#fde68a}
+  .ok{color:#86efac}
+  .error{color:#fecaca}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
 </style>
 </head>
 <body>
-<div class="container">
-  <div id="viewMode" class="shell hide">
-    <div class="phone"><div class="screen">
-      <div class="hero"><div class="badge">Profile</div></div>
-      <div class="card">
-        <div class="name">
-          <h2 id="v_name">—</h2>
-          <div class="verify">✓</div>
-        </div>
-        <div class="role" id="v_role">—</div>
-        <div class="actions">
-          <a id="v_call" class="iconbtn" aria-label="Call" title="Call">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-              <path d="M6.6 10.8c1.2 2.4 3.2 4.4 5.6 5.6l1.9-1.9c.3-.3.8-.4 1.2-.3 1.3.4 2.7.6 4.1.6.7 0 1.2.5 1.2 1.2v3.5c0 .7-.5 1.2-1.2 1.2C9.8 20.9 3.1 14.2 3.1 5.6 3.1 4.9 3.6 4.3 4.3 4.3H7.8c.7 0 1.2.5 1.2 1.2 0 1.4.2 2.8.6 4.1.1.4 0 .9-.3 1.2L6.6 10.8z"/>
-            </svg>
-          </a>
-          <a id="v_mail" class="iconbtn" aria-label="Email" title="Email">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-              <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5L4 8V6l8 5 8-5v2Z"/>
-            </svg>
-          </a>
-          <a id="v_linkedin" class="iconbtn" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-              <path d="M4.98 3.5a2.5 2.5 0 1 0 .02 5 2.5 2.5 0 0 0-.02-5ZM3 8.98h4v12H3v-12Zm7.5 0h3.8v1.64h.05c.53-.99 1.82-2.04 3.75-2.04 4.01 0 4.75 2.64 4.75 6.07v6.33h-4v-5.61c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.71h-4v-12Z"/>
-            </svg>
-          </a>
-        </div>
-        <button id="btnVCF" class="save">Save Contact</button>
-      </div>
-      <div class="card">
-        <div class="grid">
-          <div class="app"><div class="dot"></div><div class="label" id="v_university">University</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="v_major">Major</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="v_grade">Grade</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="v_interests" title=""></div></div>
-        </div>
-      </div>
-    </div></div>
-    <div class="panel">
-      <h3>Read-only Card</h3>
-      <div class="hint">This view is read-only. To create your own, open <code>index.html</code> (no hash) and generate a link.</div>
-    </div>
-  </div>
+  <!-- floating glow orbs -->
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
 
-  <div id="editMode" class="shell">
-    <div class="panel">
-      <h3>Create Your Profile</h3>
-      <div class="field"><label>Full Name</label><input id="i_name" placeholder="Ada Lovelace" required></div>
-      <div class="field"><label>University</label><input id="i_uni" placeholder="USC"></div>
-      <div class="field"><label>Major</label><input id="i_major" placeholder="Astronautical Engineering"></div>
-      <div class="field"><label>Grade Level</label><input id="i_grade" placeholder="Graduate / Junior / etc."></div>
-      <div class="field"><label>Interests</label><textarea id="i_interests" placeholder="Propulsion, systems, AI…"></textarea></div>
-      <div class="field"><label>LinkedIn URL</label><input id="i_li" placeholder="https://www.linkedin.com/in/username"></div>
-      <div class="field"><label>Phone</label><input id="i_phone" placeholder="+1 555-555-5555"></div>
-      <div class="field"><label>Email</label><input id="i_mail" placeholder="you@example.com"></div>
+  <div class="wrap">
+    <!-- VIEW MODE (shown when URL contains #d=...) -->
+    <div id="viewCard" class="card pad hidden">
+      <div class="center">
+        <div class="avatar" id="v_avatar"></div>
+        <h1 id="v_name" class="title" style="margin:6px 0 8px"></h1>
+        <div id="v_school" class="kicker"></div>
+        <div id="v_grade" class="badge hidden"></div>
+      </div>
+      <div class="section">
+        <div id="v_interests_wrap" class="card pad" style="background:rgba(255,255,255,.10); margin-top:16px;">
+          <div class="pill"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><strong>Interests</strong></div>
+          <div id="v_interests" class="muted"></div>
+        </div>
+        <div class="card pad" style="background:rgba(255,255,255,.10); margin-top:16px;">
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <a id="v_linkedin" class="btn" target="_blank" rel="noopener"> 
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h3v10H7zM8.5 4.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM14 7h3v1.5a3 3 0 0 1 3-3h.5V7H20a2 2 0 0 0-2 2v8h-4z"/></svg>
+              Connect on LinkedIn
+            </a>
+            <a id="v_phone" class="btn btn-outline" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.1 5.18 2 2 0 0 1 5.11 3h3a2 2 0 0 1 2 1.72c.12.9.3 1.77.57 2.6a2 2 0 0 1-.45 2.11L9.1 10.91a16 16 0 0 0 4 4l1.47-1.13a2 2 0 0 1 2.11-.45c.83.27 1.7.45 2.6.57A2 2 0 0 1 22 16.92z"/></svg>
+              <span id="v_phone_txt"></span>
+            </a>
+            <a id="v_email" class="btn btn-outline" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg>
+              <span id="v_email_txt"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE MODE (shown when there is no #d=...) -->
+    <div id="createCard" class="card pad hidden">
+      <div style="margin-bottom:8px">
+        <div class="title">Create Your Profile</div>
+        <div class="subtle" style="margin-top:6px">Fill out your details to generate a shareable, NFC-friendly URL.</div>
+      </div>
 
       <div class="row">
-        <button id="btnGen" class="primary">Generate Read-Only Link</button>
-        <button id="btnFillDemo" class="ghost" type="button">Fill Demo</button>
-      </div>
-      <div id="out" class="hide">
-        <div class="urlbox">
-          <input id="outUrl" readonly>
-          <button id="btnCopy" class="ghost" type="button">Copy</button>
-          <button id="btnOpen" class="primary" type="button">Open</button>
+        <div class="col">
+          <label>Full Name *</label>
+          <input id="i_name" class="input" placeholder="Jane Doe" />
         </div>
-        <div class="hint">
-          URL length: <span id="len" class="lenok">0</span> / 492 characters.
-          Links use compressed <code>#v=…</code> so they’re NFC-friendly.
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>University</label>
+          <input id="i_univ" class="input" placeholder="Your university" />
+        </div>
+        <div class="col">
+          <label>Major</label>
+          <input id="i_major" class="input" placeholder="Your major/field" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>Grade Level</label>
+          <select id="i_grade" class="input select">
+            <option value="">Select your grade level</option>
+            <option>Freshman</option><option>Sophomore</option><option>Junior</option>
+            <option>Senior</option><option>Graduate</option><option>PhD</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Phone Number</label>
+          <input id="i_phone" class="input" placeholder="+1 555 123 4567" />
+        </div>
+      </div>
+
+      <div>
+        <label>Email</label>
+        <input id="i_email" class="input" placeholder="you@example.com" />
+      </div>
+
+      <div>
+        <label>LinkedIn URL</label>
+        <input id="i_linkedin" class="input" placeholder="https://linkedin.com/in/yourhandle" />
+      </div>
+
+      <div>
+        <label>Interests</label>
+        <textarea id="i_interests" class="textarea" placeholder="Tell others about your interests and hobbies..."></textarea>
+      </div>
+
+      <div class="footer-actions">
+        <button id="btnGen" class="btn"><span>Generate URL</span></button>
+      </div>
+
+      <div id="result" class="card pad hidden" style="margin-top:14px; background:rgba(0,0,0,.25)">
+        <div class="kicker">Copy this URL and write it to your NFC tag.</div>
+        <div class="copywrap" style="margin-top:10px">
+          <input id="outUrl" class="readonly mono input" readonly />
+          <button id="btnCopy" class="copybtn" title="Copy">📋</button>
+        </div>
+        <div id="lenNote" class="mono" style="margin-top:8px; font-size:13px">
+          Length: <span id="lenVal">0</span> / <strong>492</strong>
+          <span id="lenWarn" class="warn hidden"> • Over limit—shorten some fields (often “Interests” or LinkedIn).</span>
+          <span id="lenOk" class="ok hidden"> • Good to go ✅</span>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+          <a id="btnPreview" class="btn btn-outline" target="_blank" rel="noopener">Preview</a>
+          <button id="btnReset" class="btn btn-outline" type="button">Create Another</button>
         </div>
       </div>
     </div>
-
-    <div class="phone"><div class="screen">
-      <div class="hero"><div class="badge">Preview</div></div>
-      <div class="card">
-        <div class="name"><h2 id="p_name">Your Name</h2><div class="verify">✓</div></div>
-        <div class="role" id="p_role">Major · University</div>
-        <div class="actions">
-          <div class="iconbtn" title="Call (preview)"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.6 10.8c1.2 2.4 3.2 4.4 5.6 5.6l1.9-1.9c.3-.3.8-.4 1.2-.3 1.3.4 2.7.6 4.1.6.7 0 1.2.5 1.2 1.2v3.5c0 .7-.5 1.2-1.2 1.2C9.8 20.9 3.1 14.2 3.1 5.6 3.1 4.9 3.6 4.3 4.3 4.3H7.8c.7 0 1.2.5 1.2 1.2 0 1.4.2 2.8.6 4.1.1.4 0 .9-.3 1.2L6.6 10.8z"/></svg></div>
-          <div class="iconbtn" title="Email (preview)"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5L4 8V6l8 5 8-5v2Z"/></svg></div>
-          <div class="iconbtn" title="LinkedIn (preview)"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 0 .02 5 2.5 2.5 0 0 0-.02-5ZM3 8.98h4v12H3v-12Zm7.5 0h3.8v1.64h.05c.53-.99 1.82-2.04 3.75-2.04 4.01 0 4.75 2.64 4.75 6.07v6.33h-4v-5.61c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.71h-4v-12Z"/></svg></div>
-        </div>
-        <button class="save" disabled>Save Contact</button>
-      </div>
-      <div class="card">
-        <div class="grid">
-          <div class="app"><div class="dot"></div><div class="label" id="p_uni">University</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="p_major">Major</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="p_grade">Grade</div></div>
-          <div class="app"><div class="dot"></div><div class="label" id="p_interests">Interests</div></div>
-        </div>
-      </div>
-    </div></div>
   </div>
-</div>
-
-<footer>Tip: Write the generated link to your NFC tag with “URL/URI” type. Opening that URL shows only the card.</footer>
 
 <script>
-/* ==== ultra-tiny LZ-based URL encoder (subset of LZ-String) ==== */
-const LZ = (function(){
-  function u(t){return encodeURIComponent(t).replace(/%20/g," ")}
-  function d(t){try{return decodeURIComponent(t)}catch(e){return t}}
-  function c(input){
-    if(input==null) return "";
-    let context_dictionary={}, context_dictionaryToCreate={}, context_c="", context_wc="", context_w="", context_enlargeIn=2,
-        context_dictSize=3, context_numBits=2, data=[], data_val=0, data_position=0, ii;
-    function writeBit(value){
-      data_val=(data_val<<1)|value; if(++data_position==6){ data.push("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".charAt(data_val)); data_position=0; data_val=0; }
-    }
-    function writeBits(numBits,value){
-      for(let i=0;i<numBits;i++){ writeBit(value&1); value>>=1; }
-    }
-    for(ii=0; ii<input.length; ii++){
-      context_c=input.charAt(ii);
-      if(!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)){
-        context_dictionary[context_c]=context_dictSize++;
-        context_dictionaryToCreate[context_c]=true;
-      }
-      context_wc=context_w+context_c;
-      if(Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)){
-        context_w=context_wc;
-      }else{
-        if(Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)){
-          if(context_w.charCodeAt(0)<256){
-            writeBits(context_numBits,0); writeBits(8,context_w.charCodeAt(0));
-          }else{
-            writeBits(context_numBits,1); writeBits(16,context_w.charCodeAt(0));
-          }
-          context_enlargeIn--; if(context_enlargeIn==0){ context_enlargeIn=Math.pow(2,context_numBits); context_numBits++; }
-          delete context_dictionaryToCreate[context_w];
-        }else{
-          writeBits(context_numBits,context_dictionary[context_w]);
-        }
-        context_enlargeIn--; if(context_enlargeIn==0){ context_enlargeIn=Math.pow(2,context_numBits); context_numBits++; }
-        context_dictionary[context_wc]=context_dictSize++; context_w=String(context_c);
-      }
-    }
-    if(context_w!==""){
-      if(Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)){
-        if(context_w.charCodeAt(0)<256){ writeBits(context_numBits,0); writeBits(8,context_w.charCodeAt(0)); }
-        else { writeBits(context_numBits,1); writeBits(16,context_w.charCodeAt(0)); }
-        delete context_dictionaryToCreate[context_w];
-      }else{
-        writeBits(context_numBits,context_dictionary[context_w]);
-      }
-      context_enlargeIn--; if(context_enlargeIn==0){ context_enlargeIn=Math.pow(2,context_numBits); context_numBits++; }
-    }
-    writeBits(context_numBits,2);
-    while(true){ data_val=(data_val<<1); if(++data_position==6){ data.push("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".charAt(data_val)); break; } }
-    return data.join("");
-  }
-  function dc(input){
-    if(!input) return "";
-    const keyStr="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    let dictionary=[0,1,2], enlargeIn=4, dictSize=4, numBits=3, entry="", result=[], w,
-        bits, resb, maxpower, power, c, data={val:keyStr.indexOf(input.charAt(0)),position:32,index:1};
-    function readBits(n){
-      let power=1, res=0, max=1<<n;
-      for(let i=0;i<n;i++){ resb=data.val & data.position; data.position >>=1;
-        if(data.position==0){ data.position=32; data.val=keyStr.indexOf(input.charAt(data.index++)); }
-        if(resb>0) res |= power; power <<=1; }
-      return res;
-    }
-    bits=readBits(2);
-    switch(bits){
-      case 0: c=String.fromCharCode(readBits(8)); break;
-      case 1: c=String.fromCharCode(readBits(16)); break;
-      case 2: return "";
-    }
-    dictionary[3]=c; w=c; result.push(c);
-    while(true){
-      if(data.index>input.length) return "";
-      bits=readBits(numBits);
-      let cc;
-      if(bits===0){ cc=String.fromCharCode(readBits(8)); dictionary[dictSize++]=cc; bits=dictSize-1; enlargeIn--; }
-      else if(bits===1){ cc=String.fromCharCode(readBits(16)); dictionary[dictSize++]=cc; bits=dictSize-1; enlargeIn--; }
-      else if(bits===2){ return result.join(""); }
-      if(enlargeIn==0){ enlargeIn=1<<numBits; numBits++; }
-      entry = dictionary[bits] ? dictionary[bits] : (bits===dictSize ? w + w[0] : null);
-      if(entry==null) return "";
-      result.push(entry); dictionary[dictSize++]=w+entry[0]; w=entry;
-      if(--enlargeIn==0){ enlargeIn=1<<numBits; numBits++; }
-    }
-  }
-  return {
-    encURI:(obj)=>c(u(obj)),
-    decURI:(s)=>d(dc(s))
+/* ===== Minimal LZ-String (compressToEncodedURIComponent / decompressFromEncodedURIComponent) =====
+   Source: https://github.com/pieroxy/lz-string (MIT). Trimmed to only needed methods. */
+var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},e={compressToEncodedURIComponent:function(o){return null==o?"":e._compress(o,6,function(o){return n.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),e._decompress(r.length,32,function(t){return o(n,r.charAt(t))}))},_compress:function(o,n,t){if(null==o)return"";var e,i,u,a={},c={},s="",p="",f="",l=2,h=3,d=2,v=[],g=0,m=0;for(i=0;i<o.length;i+=1)if(s=o.charAt(i),Object.prototype.hasOwnProperty.call(a,s)||(a[s]=h++,c[s]=!0),p=f+s,Object.prototype.hasOwnProperty.call(a,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(f.charCodeAt(0)<256){for(e=0;e<d;e++)g<<=1,m==n-1?(m=0,v.push(t(g)),g=0):m++;for(u=f.charCodeAt(0),e=0;e<8;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1}else{for(u=1,e=0;e<d;e++)g=g<<1|u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u=0;for(u=f.charCodeAt(0),e=0;e<16;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1}l--,0==l&&(l=Math.pow(2,d),d++),delete c[f]}else for(u=a[f],e=0;e<d;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1;l--,0==l&&(l=Math.pow(2,d),d++),a[p]=h++,f=String(s)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(f.charCodeAt(0)<256){for(e=0;e<d;e++)g<<=1,m==n-1?(m=0,v.push(t(g)),g=0):m++;for(u=f.charCodeAt(0),e=0;e<8;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1}else{for(u=1,e=0;e<d;e++)g=g<<1|u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u=0;for(u=f.charCodeAt(0),e=0;e<16;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1}l--,0==l&&(l=Math.pow(2,d),d++),delete c[f]}else for(u=a[f],e=0;e<d;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1;l--,0==l&&(l=Math.pow(2,d),d++)}for(u=2,e=0;e<d;e++)g=g<<1|1&u,m==n-1?(m=0,v.push(t(g)),g=0):m++,u>>=1;for(;;){if(g<<=1,m==n-1){v.push(t(g));break}m++}return v.join("")},_decompress:function(o,n,t){var e,i,u,a,c,s,p,f,l,h=[],d=4,v=4,g=3,m="",w=[],A={val:t(0),position:n,index:1};for(i=0;i<3;i+=1)h[i]=i;for(u=0,c=Math.pow(2,2),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;f=r(u);break;case 1:for(u=0,c=Math.pow(2,16),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;f=r(u);break;case 2:return""}for(h[3]=f,p=f,w.push(f);;){if(A.index>o)return"";for(u=0,c=Math.pow(2,g),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;switch(i=u){case 0:for(u=0,c=Math.pow(2,8),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;h[v++]=r(u),i=v-1,g--;break;case 1:for(u=0,c=Math.pow(2,16),s=1;s!=c;)a=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),u|=(a>0?1:0)*s,s<<=1;h[v++]=r(u),i=v-1,g--;break;case 2:return w.join("")}if(0==g&&(g=Math.pow(2,++m.length),d++,v==d&&(d=Math.pow(2,g))),h[i])f=h[i];else{if(i!==v)return null;f=p+p.charAt(0)}w.push(f),h[v++]=p+f.charAt(0),p=f,0==--d&&(d=Math.pow(2,g),g++)}}
+}; return e}();
+
+/* ===== Helpers ===== */
+const $ = sel => document.querySelector(sel);
+const byId = id => document.getElementById(id);
+
+function compactPayload(){
+  // Use short keys to minimize size
+  const obj = {
+    n: byId('i_name').value.trim(),
+    u: byId('i_univ').value.trim(),
+    m: byId('i_major').value.trim(),
+    g: byId('i_grade').value,
+    i: byId('i_interests').value.trim(),
+    l: normalizeLinkedIn(byId('i_linkedin').value.trim()),
+    p: normalizePhone(byId('i_phone').value.trim()),
+    e: byId('i_email').value.trim()
   };
-})();
-/* ============================================================= */
-
-const $=s=>document.querySelector(s);
-const paramOrder=["name","uni","major","grade","interests","li","phone","mail"];
-
-function pack(fields){
-  // Tab-joined (very compact) then LZ+URI encoded
-  return LZ.encURI(fields.map(v=>v.replace(/\t/g," ")).join("\t"));
-}
-function unpack(str){
-  const raw=LZ.decURI(str)||"";
-  const parts=raw.split("\t");
-  const out={}; for(let i=0;i<paramOrder.length;i++){ out[paramOrder[i]]=parts[i]||""; }
-  return out;
-}
-function buildURL(payload){
-  const base = location.origin + location.pathname.replace(/index\.html?$/i,"");
-  return base + "#v=" + payload;
-}
-function setPreview(){
-  const n=$('#i_name').value.trim()||"Your Name";
-  const uni=$('#i_uni').value.trim()||"University";
-  const major=$('#i_major').value.trim()||"Major";
-  const grade=$('#i_grade').value.trim()||"Grade";
-  const interests=$('#i_interests').value.trim()||"Interests";
-
-  $('#p_name').textContent=n;
-  $('#p_role').textContent=`${major} · ${uni}`;
-  $('#p_uni').textContent=uni||"—";
-  $('#p_major').textContent=major||"—";
-  $('#p_grade').textContent=grade||"—";
-  $('#p_interests').textContent=(interests||"—").slice(0,28)+(interests.length>28?'…':'');
+  // Required name
+  if(!obj.n){ alert('Full Name is required.'); return null; }
+  return obj;
 }
 
-function gen(){
-  const vals = [
-    $('#i_name').value.trim(),
-    $('#i_uni').value.trim(),
-    $('#i_major').value.trim(),
-    $('#i_grade').value.trim(),
-    $('#i_interests').value.trim(),
-    $('#i_li').value.trim(),
-    $('#i_phone').value.trim(),
-    $('#i_mail').value.trim()
-  ];
-  const comp = pack(vals);
-  const url = buildURL(comp);
-  const ok = url.length<=492;
-  $('#outUrl').value=url;
-  $('#out').classList.remove('hide');
+function normalizeLinkedIn(url){
+  if(!url) return "";
+  url = url.replace(/^http(s)?:\/\//i,''); // drop protocol
+  url = url.replace(/^www\./i,'');
+  // keep only linkedin host + path
+  const m = url.match(/^([a-z]+\.)?linkedin\.com\/(.*)$/i);
+  return m ? ('linkedin.com/' + m[2].replace(/\/+$/,'')) : url;
+}
+function normalizePhone(ph){
+  if(!ph) return "";
+  // strip spaces, parentheses, dashes
+  const digits = ph.replace(/[^\d+]/g,'');
+  return digits;
+}
+
+function makeUrl(obj){
+  const json = JSON.stringify(obj);
+  const token = LZString.compressToEncodedURIComponent(json);
+  const base = location.origin + location.pathname; // same file
+  return `${base}#d=${token}`;
+}
+
+function parseHash(){
+  const h = location.hash || "";
+  const m = h.match(/[#&]d=([^&]+)/);
+  if(!m) return null;
+  try{
+    const json = LZString.decompressFromEncodedURIComponent(m[1]);
+    if(!json) return null;
+    const data = JSON.parse(json);
+    return data;
+  }catch(e){ return null; }
+}
+
+function toggle(el, show){ el.classList[show ? 'remove' : 'add']('hidden'); }
+
+function setLenStatus(url){
   const len = url.length;
-  const lenEl = $('#len');
-  lenEl.textContent = len;
-  lenEl.className = len<=492 ? 'lenok' : 'lenbad';
-  if(!ok) alert("Warning: URL exceeds 492 characters. Shorten fields (especially LinkedIn) or use a shorter domain.");
+  byId('lenVal').textContent = len;
+  const over = len > 492;
+  toggle(byId('lenWarn'), over ? true : false);
+  toggle(byId('lenOk'), over ? false : true);
+  return !over;
 }
 
-function copyLink(){ $('#outUrl').select(); document.execCommand('copy'); }
-function openLink(){ const u=$('#outUrl').value; if(u) location.href=u; }
-
-function vcardFrom(o){
-  const n=o.name||"";
-  const email=o.mail||"";
-  const tel=o.phone||"";
-  const org=o.uni||"";
-  const title=o.major||"";
-  const note=(o.grade?`Grade: ${o.grade}\\n`:"")+(o.interests?`Interests: ${o.interests}`:"");
-  return `BEGIN:VCARD
-VERSION:3.0
-FN:${n}
-ORG:${org}
-TITLE:${title}
-TEL;TYPE=CELL:${tel}
-EMAIL;TYPE=INTERNET:${email}
-URL:${o.li||""}
-NOTE:${note}
-END:VCARD`.replace(/\n/g,"\r\n");
+function resetForm(){
+  ['i_name','i_univ','i_major','i_grade','i_interests','i_linkedin','i_phone','i_email'].forEach(id=>{
+    const el=byId(id); if(el){ if(el.tagName==='SELECT') el.value=""; else el.value=""; }
+  });
+  toggle(byId('result'), false);
 }
 
-/* ---------- wire up editor ---------- */
-['#i_name','#i_uni','#i_major','#i_grade','#i_interests'].forEach(sel=>{
-  document.addEventListener('input', e=>{ if(e.target.matches(sel)) setPreview(); });
-});
-$('#btnGen').addEventListener('click', gen);
-$('#btnCopy').addEventListener('click', copyLink);
-$('#btnOpen').addEventListener('click', openLink);
-$('#btnFillDemo').addEventListener('click', ()=>{
-  $('#i_name').value="Ahmed Gamal";
-  $('#i_uni').value="USC";
-  $('#i_major').value="Product Designer";
-  $('#i_grade').value="Graduate";
-  $('#i_interests').value="Design systems, mobile UX, motion";
-  $('#i_li').value="https://linkedin.com/in/ahmed";
-  $('#i_phone').value="+1 555 555 1234";
-  $('#i_mail').value="ahmed@example.com";
-  setPreview();
-});
-setPreview();
-
-/* ---------- view-only mode ---------- */
-(function init(){
-  const m = location.hash.match(/^#v=([\w\-]+)$/);
-  if(!m){ // editor mode
-    $('#editMode').classList.remove('hide'); $('#viewMode').classList.add('hide'); return;
+function renderView(data){
+  // Avatar
+  const av = byId('v_avatar');
+  av.innerHTML = "";
+  const initials = (data.n||"?").slice(0,1).toUpperCase();
+  const img = null; // No image in this spec to keep URL tiny (NFC constraint)
+  if(img){
+    const im = document.createElement('img'); im.src = img; av.appendChild(im);
+  }else{
+    const ph = document.createElement('div');
+    ph.style.width="100%"; ph.style.height="100%"; ph.style.borderRadius="999px";
+    ph.style.display="flex"; ph.style.alignItems="center"; ph.style.justifyContent="center";
+    ph.style.background="linear-gradient(135deg,#a78bfa,#f472b6)";
+    ph.innerHTML = `<span style="font-size:48px;font-weight:800;color:white">${initials}</span>`;
+    av.appendChild(ph);
   }
-  const data = unpack(m[1]);
-  $('#editMode').classList.add('hide'); $('#viewMode').classList.remove('hide');
 
-  const role = [data.major,data.uni].filter(Boolean).join(" · ");
-  $('#v_name').textContent = data.name || "—";
-  $('#v_role').textContent = role || "—";
-  $('#v_university').textContent = data.uni || "—";
-  $('#v_major').textContent = data.major || "—";
-  $('#v_grade').textContent = data.grade || "—";
-  $('#v_interests').textContent = (data.interests||"—").slice(0,32);
-  $('#v_interests').title = data.interests || "";
+  byId('v_name').textContent = data.n || '—';
+  const school = [data.m, data.u].filter(Boolean).join(' • ');
+  byId('v_school').textContent = school;
+  const grade = byId('v_grade');
+  if(data.g){ grade.textContent = data.g; grade.classList.remove('hidden'); } else { grade.classList.add('hidden'); }
 
-  // Buttons
-  if(data.phone){ $('#v_call').href = "tel:"+data.phone.replace(/\s+/g,""); }
-  else { $('#v_call').classList.add('hide'); }
+  if(data.i){
+    byId('v_interests').textContent = data.i;
+    byId('v_interests_wrap').style.display = "";
+  } else {
+    byId('v_interests_wrap').style.display = "none";
+  }
 
-  if(data.mail){ $('#v_mail').href = "mailto:"+data.mail; }
-  else { $('#v_mail').classList.add('hide'); }
+  const linkA = byId('v_linkedin');
+  if(data.l){
+    linkA.href = 'https://' + (data.l.startsWith('linkedin.com') ? data.l : data.l);
+    linkA.style.display = "inline-flex";
+  } else {
+    linkA.style.display = "none";
+  }
 
-  if(data.li){ $('#v_linkedin').href = data.li; }
-  else { $('#v_linkedin').classList.add('hide'); }
+  const phA = byId('v_phone');
+  if(data.p){
+    phA.href = 'tel:' + data.p;
+    byId('v_phone_txt').textContent = data.p;
+    phA.style.display = "inline-flex";
+  } else {
+    phA.style.display = "none";
+  }
 
-  // vCard download
-  document.getElementById('btnVCF').addEventListener('click', ()=>{
-    const vcf=vcardFrom({name:data.name, mail:data.mail, phone:data.phone, uni:data.uni, major:data.major, grade:data.grade, interests:data.interests, li:data.li});
-    const blob=new Blob([vcf],{type:"text/vcard"});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=(data.name||"contact").replace(/[^\w\-]+/g,'_')+".vcf";
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
-  }, {once:true});
-})();
+  const emA = byId('v_email');
+  if(data.e){
+    emA.href = 'mailto:' + data.e;
+    byId('v_email_txt').textContent = data.e;
+    emA.style.display = "inline-flex";
+  } else {
+    emA.style.display = "none";
+  }
+}
+
+function init(){
+  const data = parseHash();
+  if(data){
+    // VIEW ONLY
+    toggle(byId('viewCard'), true);
+    toggle(byId('createCard'), false);
+    renderView(data);
+    return;
+  }
+  // CREATE
+  toggle(byId('viewCard'), false);
+  toggle(byId('createCard'), true);
+
+  byId('btnGen').addEventListener('click', ()=>{
+    const obj = compactPayload();
+    if(!obj) return;
+    const url = makeUrl(obj);
+    byId('outUrl').value = url;
+    toggle(byId('result'), true);
+    const ok = setLenStatus(url);
+    if(!ok){
+      // try a micro-optimization: trim whitespace & collapse spaces in interests
+      obj.i = (obj.i||"").replace(/\s+/g,' ').trim();
+      const url2 = makeUrl(obj);
+      if(url2.length < url.length){
+        byId('outUrl').value = url2;
+        setLenStatus(url2);
+      }
+    }
+    byId('btnPreview').href = byId('outUrl').value;
+  });
+
+  byId('btnCopy').addEventListener('click', async ()=>{
+    const v = byId('outUrl').value;
+    try{ await navigator.clipboard.writeText(v);
+      byId('btnCopy').textContent = '✅';
+      setTimeout(()=>byId('btnCopy').textContent='📋', 1600);
+    }catch{ alert('Copy failed. Select the text and copy manually.'); }
+  });
+
+  byId('btnReset').addEventListener('click', resetForm);
+}
+
+window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
