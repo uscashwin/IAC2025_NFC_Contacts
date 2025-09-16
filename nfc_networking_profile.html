@@ -1,499 +1,300 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NFC Profile Card</title>
+<title>Smart Contact Card</title>
 <style>
   :root{
-    --bg: #0b0f14; --card:#0f1620; --muted:#9fb0c3; --text:#e6edf3; --accent:#4cc2ff; --ring:#233142;
-    --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
-    --radius:16px;
+    --bg:#eef3ff; --card:#ffffff; --muted:#8a90a2; --ink:#111827;
+    --primary:#4f46e5; --accent:#10b981; --ring:#dbe2ff;
+    --shadow: 0 10px 30px rgba(24,39,75,.08), 0 2px 8px rgba(24,39,75,.06);
+    --radius:22px;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
   body{
-    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: radial-gradient(1200px 800px at 80% -10%, #122033 0%, var(--bg) 55%),
-                radial-gradient(1000px 700px at -10% 120%, #0f1a28 0%, transparent 60%);
-    color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
+    margin:0; background:
+      radial-gradient(1000px 600px at -10% -10%, #dfe8ff 0%, transparent 70%),
+      radial-gradient(900px 500px at 120% 10%, #e7f6ff 0%, transparent 65%),
+      var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.25;
   }
-  .shell{width:100%; max-width:880px; display:grid; gap:24px}
+  .wrap{max-width:840px; margin:40px auto; padding:0 20px}
   .card{
-    background: linear-gradient(180deg, #0f1722 0%, var(--card) 100%);
-    border:1px solid var(--ring); border-radius: var(--radius);
-    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.02);
-    overflow:hidden;
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:28px; position:relative; overflow:hidden;
   }
   .header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 20px; border-bottom:1px solid var(--ring);
+    display:flex; align-items:center; gap:20px; padding-bottom:18px; border-bottom:1px solid #f1f5ff;
   }
-  .title{font-weight:600; letter-spacing:.2px}
-  .muted{color:var(--muted); font-size:14px}
-  .content{padding:20px}
-  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px}
-  .col-12{grid-column:span 12}
-  .col-6{grid-column:span 6}
-  .col-4{grid-column:span 4}
-  @media (max-width:780px){ .col-6,.col-4{grid-column:span 12} }
-
-  label{display:block; font-size:13px; color:var(--muted); margin:6px 0 6px 2px}
-  input, textarea{
-    width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--ring);
-    background:#0c121a; color:var(--text); outline:none; font-size:14px;
-  }
-  textarea{resize:vertical; min-height:80px}
-  input:focus, textarea:focus{border-color:#2b3e55; box-shadow: 0 0 0 3px rgba(76,194,255,.15)}
-
-  .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-  .btn{
-    appearance:none; border:1px solid var(--ring); background:#0d1520; color:var(--text);
-    padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; letter-spacing:.2px;
-    transition:transform .03s ease;
-  }
-  .btn:hover{border-color:#2b3e55}
-  .btn:active{transform:translateY(1px)}
-  .btn.primary{background:linear-gradient(180deg, #152638 0%, #0f1a2a 100%); border-color:#28445f}
-  .btn.ok{border-color:rgba(16,185,129,.3); background:rgba(16,185,129,.08)}
-  .btn.warn{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.08)}
-  .btn.err{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.08)}
-
-  .note{font-size:12px; color:var(--muted)}
-  .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px dashed var(--ring);
-        border-radius:999px; font-size:12px; color:var(--muted)}
-  .meter{height:8px; background:#0c1218; border-radius:999px; overflow:hidden; border:1px solid var(--ring)}
-  .meter>span{display:block; height:100%; background:linear-gradient(90deg, #21c9ff, #4cc2ff);
-              width:0%}
-
-  /* VIEW CARD */
-  .vwrap{display:flex; gap:18px; align-items:center}
   .avatar{
-    width:72px; height:72px; border-radius:14px; border:1px solid var(--ring);
-    background:#0c121a center/cover no-repeat; display:flex; align-items:center; justify-content:center;
-    font-weight:700; font-size:24px; color:#7fd1ff;
+    width:96px; height:96px; border-radius:24px; background:#f3f4f6; overflow:hidden; flex:0 0 auto;
+    display:grid; place-items:center; box-shadow: inset 0 0 0 1px #eef2ff;
   }
-  .vgrid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px; margin-top:16px}
-  .kv{padding:12px; background:#0c1218; border:1px solid var(--ring); border-radius:12px}
-  .kv small{display:block; color:var(--muted); font-size:11px; margin-bottom:6px; letter-spacing:.3px}
-  .link{color:#9bd4ff; text-decoration:none}
-  .link:hover{text-decoration:underline}
-  .center{display:flex; align-items:center; justify-content:center; padding:24px; text-align:center}
+  .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+  .title h1{margin:0 0 6px 0; font-size:28px; font-weight:800; letter-spacing:.2px}
+  .title p{margin:0; color:var(--muted)}
+  .grid{
+    display:grid; gap:16px; margin-top:22px;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+  @media (max-width:720px){ .grid{grid-template-columns: 1fr} }
+  label{font-size:12px; color:#6b7280; margin-bottom:6px; display:block; letter-spacing:.3px}
+  input, textarea{
+    width:100%; border:1px solid #e6e9f9; border-radius:14px; padding:12px 14px;
+    font-size:15px; outline:0; background:#fbfcff;
+  }
+  input:focus, textarea:focus{box-shadow:0 0 0 4px var(--ring); border-color:#c7d2fe}
+  textarea{min-height:88px; resize:vertical}
+  .row{display:flex; gap:14px}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    background:var(--primary); color:#fff; border:none; padding:12px 16px;
+    border-radius:14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);
+  }
+  .btn.sec{background:#eef2ff; color:#3b3f5c}
+  .note{color:var(--muted); font-size:13px}
+  .out{
+    margin-top:18px; background:#f7f8ff; border:1px dashed #c7d2fe; padding:14px; border-radius:14px; overflow:auto
+  }
+  .pillbar{display:flex; gap:12px; margin-top:14px}
+  .pill{
+    background:#f5f7ff; border-radius:16px; padding:10px 12px; font-size:13px; color:#4b5563;
+    display:flex; align-items:center; gap:8px; box-shadow: inset 0 0 0 1px #e5e9ff;
+  }
+  .actions{display:flex; gap:10px; flex-wrap:wrap}
+  .iconbtn{
+    width:48px; height:48px; display:grid; place-items:center; border-radius:14px; background:#eef2ff;
+    box-shadow:var(--shadow); color:#374151; text-decoration:none; font-weight:900;
+  }
+  .field{display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .field span{font-weight:700}
+  .divider{height:1px; background:#f1f5ff; margin:10px 0}
+  .footerNote{margin-top:8px; font-size:12px; color:#6b7280}
+  .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+  .lenok{font-size:12px; color:#6b7280}
+  .hide{display:none !important}
 </style>
 </head>
 <body>
-<div class="shell">
-
-  <div class="card" id="editCard" hidden>
+<div class="wrap">
+  <div id="createCard" class="card">
     <div class="header">
+      <div class="avatar"><img id="preview" alt="Profile picture preview" src="" onerror="this.src=''; this.parentElement.style.background='#f3f4f6'"></div>
+      <div class="title">
+        <h1>Create your contact</h1>
+        <p>Fill the form → generate a compact link (target ≤ 492 chars) for your NFC tag.</p>
+      </div>
+    </div>
+
+    <div class="grid" id="formGrid">
       <div>
-        <div class="title">Create Your NFC Profile</div>
-        <div class="muted">Fill once → generate a read-only share link (≤ 492 chars total)</div>
+        <label>Profile picture URL</label>
+        <input id="pic" placeholder="https://…" oninput="updatePreview(this.value)">
       </div>
-      <span class="pill">Max NFC URL: <strong>492</strong> chars</span>
-    </div>
-    <div class="content">
-      <div class="grid">
-        <div class="col-12">
-          <label>Profile Picture</label>
-          <div class="row">
-            <input id="imgUrl" placeholder="Image URL (recommended for smallest link)" />
-            <input type="file" id="imgFile" accept="image/*" class="col-6" />
-          </div>
-          <div class="note" style="margin-top:6px;">
-            Tip: Using an external image URL keeps your NFC link shortest. Uploading a photo is auto-shrunk to 64×64 but may be dropped if the link would exceed 492 characters.
-          </div>
-        </div>
+      <div>
+        <label>Full name</label>
+        <input id="name" placeholder="Ada Lovelace">
+      </div>
 
-        <div class="col-6">
-          <label>Full Name</label>
-          <input id="name" placeholder="e.g., Ashwin Rajkumar" maxlength="80" />
-        </div>
-        <div class="col-6">
-          <label>University</label>
-          <input id="univ" placeholder="e.g., USC" maxlength="80" />
-        </div>
+      <div>
+        <label>University</label>
+        <input id="uni" placeholder="USC">
+      </div>
+      <div>
+        <label>Major</label>
+        <input id="major" placeholder="Astronautical Engineering">
+      </div>
 
-        <div class="col-6">
-          <label>Major</label>
-          <input id="major" placeholder="e.g., Astronautical Engineering" maxlength="80" />
-        </div>
-        <div class="col-6">
-          <label>Grade Level</label>
-          <input id="grade" placeholder="e.g., M.S. Candidate" maxlength="60" />
-        </div>
+      <div>
+        <label>Grade level</label>
+        <input id="grade" placeholder="Graduate / Junior / etc.">
+      </div>
+      <div>
+        <label>Interests (comma-separated)</label>
+        <input id="interests" placeholder="Propulsion, Avionics, Robotics">
+      </div>
 
-        <div class="col-12">
-          <label>Interests</label>
-          <textarea id="interests" placeholder="Comma-separated: propulsion, EDL, kinetic launch…" maxlength="200"></textarea>
-        </div>
-
-        <div class="col-6">
-          <label>LinkedIn URL</label>
-          <input id="linkedin" placeholder="https://www.linkedin.com/in/username" maxlength="120" />
-        </div>
-        <div class="col-3">
+      <div>
+        <label>LinkedIn URL</label>
+        <input id="li" placeholder="https://www.linkedin.com/in/username">
+      </div>
+      <div class="row">
+        <div style="flex:1">
           <label>Phone</label>
-          <input id="phone" placeholder="+1 555 123 4567" maxlength="32" />
+          <input id="phone" placeholder="(555) 123-4567">
         </div>
-        <div class="col-3">
+        <div style="flex:1">
           <label>Email</label>
-          <input id="email" placeholder="you@example.com" maxlength="120" />
-        </div>
-
-        <div class="col-12">
-          <div class="row">
-            <button class="btn primary" id="genBtn">Generate Link</button>
-            <button class="btn" id="copyBtn" disabled>Copy Link</button>
-            <span class="muted" id="status">Fill your info and generate.</span>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <label>Link Length</label>
-          <div class="meter"><span id="meterBar"></span></div>
-          <div class="row" style="justify-content:space-between; margin-top:8px">
-            <div class="muted" id="lenReadout">0 / 492</div>
-            <div class="muted" id="hostHint"></div>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <input id="resultUrl" readonly placeholder="Your share URL will appear here…" />
+          <input id="email" placeholder="you@example.com">
         </div>
       </div>
     </div>
+
+    <div class="row" style="margin-top:16px">
+      <button class="btn" onclick="generate()">Generate link</button>
+      <button class="btn sec" onclick="clearForm()">Reset</button>
+    </div>
+    <div class="out hide" id="outBox">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+        <div class="note">Copy this URL into your NFC tag writer (store as a URL/URI record). It opens a read-only card.</div>
+        <div class="lenok"><span id="lenNum">0</span> chars</div>
+      </div>
+      <div class="mono" id="urlText" style="margin-top:8px; word-break:break-all"></div>
+    </div>
+    <div class="footerNote">All data stays inside the URL hash (no server). The “view” page has no edit controls.</div>
   </div>
 
-  <div class="card" id="viewCard" hidden>
+  <div id="viewCard" class="card hide" aria-live="polite">
     <div class="header">
-      <div class="title">Profile</div>
-      <div class="muted">Read-only contact card</div>
+      <div class="avatar"><img id="v_pic" alt=""></div>
+      <div class="title">
+        <h1 id="v_name">Your Name</h1>
+        <p id="v_sub" class="mono"></p>
+      </div>
     </div>
-    <div class="content" id="viewContent">
-      <!-- Filled by script -->
-    </div>
-  </div>
 
-  <div class="card center" id="errorCard" hidden>
-    <div>
-      <div class="title" style="margin-bottom:8px;">Invalid or missing data</div>
-      <div class="muted">The link may be corrupted or fields are missing.</div>
+    <div class="pillbar">
+      <div class="pill"><span id="v_uni">University</span></div>
+      <div class="pill"><span id="v_major">Major</span></div>
+      <div class="pill"><span id="v_grade">Grade</span></div>
     </div>
-  </div>
 
-</div> 
+    <div style="margin-top:18px">
+      <div class="field"><span>Phone</span><a id="v_phone" class="iconbtn" title="Call">📞</a></div>
+      <div class="divider"></div>
+      <div class="field"><span>Email</span><a id="v_email" class="iconbtn" title="Email">✉️</a></div>
+      <div class="divider"></div>
+      <div class="field"><span>LinkedIn</span><a id="v_li" class="iconbtn" title="LinkedIn">in</a></div>
+    </div>
+
+    <div style="margin-top:18px">
+      <label>Interests</label>
+      <div id="v_interests" class="pillbar"></div>
+    </div>
+    <div class="footerNote">This card is read-only. To create your own, open the base file without the <code>#!</code> part.</div>
+  </div>
+</div>
 
 <script>
-function normalizeImageUrl(url){
-    if (!url) return '';
-    url = url.trim();
-  
-    // Google Drive pattern: /file/d/{id}/view or open?id={id}
-    const d1 = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
-    const d2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/i);
-    const id = d1 ? d1[1] : (d2 ? d2[1] : null);
-    if (id) {
-      return `https://drive.google.com/uc?export=view&id=${id}`;
-    }
-  
-    return url;
-  } 
+/* --- Minimal LZ-String (compressToEncodedURIComponent / decompressFromEncodedURIComponent) --- */
+/* Source: https://github.com/pieroxy/lz-string (MIT). Trimmed for URI-component use. */
+var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},e={compressToEncodedURIComponent:function(o){return null==o?"":e._compress(o,6,function(o){return n.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:e._decompress(r.length,32,function(t){return o(n,r.charAt(t))})},_compress:function(o,t,e){if(null==o)return"";var n,r,i,s={},p={},u="",a="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),a=c+u,Object.prototype.hasOwnProperty.call(s,a))c=a;else{if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(n=0;n<h;n++)m<<=1,v==t-1?(v=0,d.push(e(m)),m=0):v++;for(r=c.charCodeAt(0),n=0;n<8;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}else{for(r=1,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(r=c.charCodeAt(0),n=0;n<16;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(r=s[c],n=0;n<h;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[a]=f++,c=String(u)}if(""!==c){if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(n=0;n<h;n++)m<<=1,v==t-1?(v=0,d.push(e(m)),m=0):v++;for(r=c.charCodeAt(0),n=0;n<8;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}else{for(r=1,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(r=c.charCodeAt(0),n=0;n<16;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(r=s[c],n=0;n<h;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(r=2,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(;;){if(m<<=1,v==t-1){d.push(e(m));break}v++}return d.join("")},_decompress:function(o,t,e){var n,r,i,s,p,u,a,c,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:t,index:1};for(n=0;n<3;n+=1)f[n]=n;for(i=0,p=Math.pow(2,2),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=r=String.fromCharCode(i);break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=r=String.fromCharCode(i);break;case 2:return""}for(f[3]=r,a=r,l=w;!0;){if(A.index>o)return"";for(i=0,p=Math.pow(2,m),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(c=i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 2:return l.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[c])v=f[c];else{if(c!==d)return null;v=a+a.charAt(0)}l.push(v),f[d++]=a+v.charAt(0),a=v,0==--h&&(h=Math.pow(2,m),m++)}}
+  return e;}();
 
-/* ---------- helpers: base64url ---------- */
-function b64urlFromUint8(uint8){
-  let bin = '';
-  for (let i=0;i<uint8.length;i++) bin += String.fromCharCode(uint8[i]);
-  const b64 = btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  return b64;
+/* ---------------- UI helpers ---------------- */
+function updatePreview(url){
+  const img = document.getElementById('preview');
+  img.src = (url||'').trim();
 }
-function uint8FromB64url(b64url){
-  const b64 = b64url.replace(/-/g,'+').replace(/_/g,'/') + '==='.slice((b64url.length+3)%4);
-  const bin = atob(b64);
-  const u8 = new Uint8Array(bin.length);
-  for (let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
-  return u8;
+
+/* Normalize for compactness without losing info */
+function compactify(data){
+  // LinkedIn: drop scheme/www for storage; restore on view
+  let li = (data.li||'').trim()
+    .replace(/^https?:\/\//i,'').replace(/^www\./i,'');
+  // Phone: keep digits + plus only
+  let phone = (data.phone||'').replace(/[^\d+]/g,'');
+  // Trim everything else
+  for (const k of Object.keys(data)) if (typeof data[k]==='string') data[k]=data[k].trim();
+  return [data.pic, data.name, data.uni, data.major, data.grade, data.interests, li, phone, data.email];
 }
-async function encodePayload(fields){
-  // fields order: [name,univ,major,grade,interests,linkedin,phone,email,imgUrl,imgData]
-  // Compact serialization: join by ASCII Unit Separator (31) and strip empties at tail
-  // prefix version "1|"
-  const SEP = String.fromCharCode(31);
-  // Trim trailing empty fields to save space
-  let arr = fields.slice();
-  while(arr.length && (arr[arr.length-1]===null || arr[arr.length-1]==='')) arr.pop();
-  const text = '1' + SEP + arr.join(SEP);
-  const u8 = new TextEncoder().encode(text);
-  return b64urlFromUint8(u8);
-}
-function decodePayload(b64){
-  const u8 = uint8FromB64url(b64);
-  const text = new TextDecoder().decode(u8);
-  const SEP = String.fromCharCode(31);
-  const parts = text.split(SEP);
-  if (!parts.length || parts[0]!=='1') return null;
-  const f = parts.slice(1);
-  // pad to 10 fields
-  while (f.length<10) f.push('');
+
+function restore(arr){
+  const [pic,name,uni,major,grade,interests,li,phone,email]=arr;
   return {
-    name:f[0]||'', univ:f[1]||'', major:f[2]||'', grade:f[3]||'',
-    interests:f[4]||'', linkedin:f[5]||'', phone:f[6]||'', email:f[7]||'',
-    imgUrl:f[8]||'', imgData:f[9]||''
+    pic, name, uni, major, grade, interests,
+    li: li ? (li.startsWith('http')? li : 'https://' + li) : '',
+    phone, email
   };
 }
 
-/* ---------- image downscale (optional) ---------- */
-function loadImage(file){
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.onload = ()=>resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+/* ---------------- Generate link ---------------- */
+function generate(){
+  const data = {
+    pic : document.getElementById('pic').value,
+    name: document.getElementById('name').value,
+    uni : document.getElementById('uni').value,
+    major:document.getElementById('major').value,
+    grade:document.getElementById('grade').value,
+    interests:document.getElementById('interests').value,
+    li  :document.getElementById('li').value,
+    phone:document.getElementById('phone').value,
+    email:document.getElementById('email').value
+  };
+  const packed = compactify(data);
+  const json = JSON.stringify(packed);
+  const hash = LZString.compressToEncodedURIComponent(json); // compact & URL-safe
+  const url = location.origin + location.pathname + "#!" + hash;
+
+  const out = document.getElementById('outBox');
+  document.getElementById('urlText').textContent = url;
+  document.getElementById('lenNum').textContent = url.length;
+  out.classList.remove('hide');
+
+  if(url.length>492){
+    document.getElementById('lenNum').style.color = '#b91c1c';
+  }else{
+    document.getElementById('lenNum').style.color = '#6b7280';
+  }
+}
+
+/* ---------------- Clear ---------------- */
+function clearForm(){
+  for (const id of ['pic','name','uni','major','grade','interests','li','phone','email'])
+    document.getElementById(id).value='';
+  updatePreview('');
+  document.getElementById('outBox').classList.add('hide');
+}
+
+/* ---------------- Render view-only card ---------------- */
+function renderView(obj){
+  document.getElementById('createCard').classList.add('hide');
+  const v = document.getElementById('viewCard');
+  v.classList.remove('hide');
+
+  document.getElementById('v_pic').src = obj.pic||'';
+  document.getElementById('v_name').textContent = obj.name||'';
+  document.getElementById('v_sub').textContent = (obj.phone?obj.phone:'') + (obj.phone&&obj.email?' · ':'') + (obj.email?obj.email:'');
+
+  document.getElementById('v_uni').textContent = obj.uni||'';
+  document.getElementById('v_major').textContent = obj.major||'';
+  document.getElementById('v_grade').textContent = obj.grade||'';
+
+  const iwrap = document.getElementById('v_interests');
+  iwrap.innerHTML='';
+  (obj.interests||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{
+    const el=document.createElement('div'); el.className='pill'; el.textContent=s; iwrap.appendChild(el);
   });
-}
-async function downscaleToDataURL(dataUrl, size=64){
-  return new Promise((resolve)=>{
-    const img = new Image();
-    img.onload = ()=>{
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, size, size);
-      // very aggressive quality to keep tiny
-      resolve(canvas.toDataURL('image/jpeg', 0.4));
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = dataUrl;
-  });
+
+  // actions
+  const phoneDigits = (obj.phone||'').replace(/[^\d+]/g,'');
+  document.getElementById('v_phone').href = phoneDigits ? ('tel:' + phoneDigits) : '#';
+  document.getElementById('v_email').href = obj.email ? ('mailto:' + obj.email) : '#';
+  document.getElementById('v_li').href    = obj.li || '#';
+  // Remove titles if no data
+  for (const [id,has] of [['v_phone',!!phoneDigits],['v_email',!!obj.email],['v_li',!!obj.li]])
+    if(!has) document.getElementById(id).classList.add('hide');
 }
 
-/* ---------- UI logic ---------- */
-const MAX_URL = 492;
-const editCard = document.getElementById('editCard');
-const viewCard = document.getElementById('viewCard');
-const errorCard = document.getElementById('errorCard');
-
-const inputs = {
-  name: document.getElementById('name'),
-  univ: document.getElementById('univ'),
-  major: document.getElementById('major'),
-  grade: document.getElementById('grade'),
-  interests: document.getElementById('interests'),
-  linkedin: document.getElementById('linkedin'),
-  phone: document.getElementById('phone'),
-  email: document.getElementById('email'),
-  imgUrl: document.getElementById('imgUrl'),
-  imgFile: document.getElementById('imgFile')
-};
-const genBtn = document.getElementById('genBtn');
-const copyBtn = document.getElementById('copyBtn');
-const resultUrl = document.getElementById('resultUrl');
-const statusEl = document.getElementById('status');
-const meterBar = document.getElementById('meterBar');
-const lenReadout = document.getElementById('lenReadout');
-const hostHint = document.getElementById('hostHint');
-
-function setLen(len){
-  const pct = Math.min(100, (len / MAX_URL) * 100);
-  meterBar.style.width = pct + '%';
-  meterBar.style.background = len > MAX_URL ? 'linear-gradient(90deg, #ef4444, #f59e0b)' : '';
-  lenReadout.textContent = `${len} / ${MAX_URL}`;
-}
-
-function normalizeLinkedIn(url){
-  if (!url) return '';
-  try{
-    url = url.trim();
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    const u = new URL(url);
-    if (u.hostname.includes('linkedin.')) {
-      // compress www subdomain
-      u.hostname = 'linkedin.com';
-      // remove tracking params
-      u.search = '';
-    }
-    return u.toString();
-  }catch{ return url; }
-}
-
-
-async function buildLink(){
-  const originPath = location.origin + location.pathname; // where this file is hosted
-  hostHint.textContent = `Host path length: ${originPath.length} chars`;
-
-  const name = inputs.name.value.trim();
-  const univ = inputs.univ.value.trim();
-  const major = inputs.major.value.trim();
-  const grade = inputs.grade.value.trim();
-  const interests = inputs.interests.value.trim();
-  const linkedin = normalizeLinkedIn(inputs.linkedin.value.trim());
-  const phone = inputs.phone.value.trim();
-  const email = inputs.email.value.trim();
-  const imgUrl = normalizeImageUrl(inputs.imgUrl.value);
-
-  // handle image: prefer URL, else uploaded file (downscale)
-  let imgData = '';
-  if (!imgUrl && inputs.imgFile.files && inputs.imgFile.files[0]) {
-    const raw = await loadImage(inputs.imgFile.files[0]);
-    imgData = await downscaleToDataURL(raw, 64); // might be dropped later if too long
-  }
-
-  // First attempt: full payload
-  let payload = await encodePayload([name,univ,major,grade,interests,linkedin,phone,email,imgUrl,imgData]);
-  let url = originPath + '#' + payload;
-  // If too long, try fallback steps progressively:
-  let workingInterests = interests;
-  let workingImgData = imgData;
-
-  if (url.length > MAX_URL) {
-    // Step 1: drop inline image data
-    workingImgData = '';
-    payload = await encodePayload([name,univ,major,grade,workingInterests,linkedin,phone,email,imgUrl,workingImgData]);
-    url = originPath + '#' + payload;
-  }
-  if (url.length > MAX_URL && workingInterests) {
-    // Step 2: trim interests aggressively
-    workingInterests = workingInterests.slice(0, 60);
-    payload = await encodePayload([name,univ,major,grade,workingInterests,linkedin,phone,email,imgUrl,workingImgData]);
-    url = originPath + '#' + payload;
-  }
-  if (url.length > MAX_URL && linkedin) {
-    // Step 3: compress LinkedIn vanity by removing protocol for display (we keep minimal host/path)
-    const li = linkedin.replace(/^https?:\/\//,'');
-    payload = await encodePayload([name,univ,major,grade,workingInterests,li,phone,email,imgUrl,workingImgData]);
-    url = originPath + '#' + payload;
-  }
-  if (url.length > MAX_URL) {
-    // Step 4: final trims on university/major/grade
-    const u2 = univ.slice(0,40), m2 = major.slice(0,40), g2 = grade.slice(0,30);
-    payload = await encodePayload([name,u2,m2,g2,workingInterests,linkedin.replace(/^https?:\/\//,''),phone,email,imgUrl,workingImgData]);
-    url = originPath + '#' + payload;
-  }
-
-  setLen(url.length);
-  resultUrl.value = url;
-  copyBtn.disabled = false;
-
-  if (url.length <= MAX_URL) {
-    statusEl.textContent = `Success: link length ${url.length} chars (≤ ${MAX_URL}).`;
-    statusEl.className = 'muted';
-  } else {
-    statusEl.textContent = `Too long by ${url.length - MAX_URL} chars. Try shortening Interests/LinkedIn or host at a shorter path.`;
-    statusEl.className = 'muted';
-  }
-}
-
-genBtn.addEventListener('click', async (e)=>{
-  e.preventDefault();
-  genBtn.disabled = true;
-  statusEl.textContent = 'Generating…';
-  await buildLink();
-  genBtn.disabled = false;
-});
-
-copyBtn.addEventListener('click', async ()=>{
-  if (!resultUrl.value) return;
-  try {
-    await navigator.clipboard.writeText(resultUrl.value);
-    statusEl.textContent = 'Copied! Write this URL to your NFC tag.';
-    statusEl.className = 'muted';
-  } catch {
-    resultUrl.select(); document.execCommand('copy');
-    statusEl.textContent = 'Copied (fallback).';
-  }
-});
-
-/* ---------- View mode rendering ---------- */
-function el(tag, attrs={}, children=[]){
-  const e = document.createElement(tag);
-  for (const [k,v] of Object.entries(attrs)){
-    if (k==='class') e.className = v;
-    else if (k==='html') e.innerHTML = v;
-    else e.setAttribute(k,v);
-  }
-  (Array.isArray(children)?children:[children]).filter(Boolean).forEach(c=>{
-    if (typeof c==='string') e.appendChild(document.createTextNode(c));
-    else e.appendChild(c);
-  });
-  return e;
-}
-
-function initials(name){
-  if (!name) return '';
-  return name.split(/\s+/).slice(0,2).map(s=>s[0]?.toUpperCase()||'').join('');
-}
-
-function safeLink(url){
-  if (!url) return '';
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  return url;
-}
-
-function renderView(data){
-  const wrap = document.getElementById('viewContent');
-  wrap.innerHTML = '';
-
-  const top = el('div',{class:'vwrap'});
-  const av = el('div',{class:'avatar'});
-  if (data.imgUrl) {
-    av.style.backgroundImage = `url("${data.imgUrl.replace(/"/g,'%22')}")`;
-  } else if (data.imgData) {
-    av.style.backgroundImage = `url("${data.imgData}")`;
-  } else {
-    av.textContent = initials(data.name);
-  }
-  const head = el('div',{},[
-    el('div',{class:'title'}, data.name || 'Unnamed'),
-    el('div',{class:'muted'}, data.univ || '')
-  ]);
-  top.append(av, head);
-
-  const grid = el('div',{class:'vgrid'});
-
-  function kv(label, value, cols=6, isLink=false){
-    if (!value) return null;
-    const box = el('div',{class:'kv', style:`grid-column:span ${cols}`},[
-      el('small',{},label),
-      isLink ? el('a',{class:'link', href: safeLink(value), target:'_blank', rel:'noopener'}, value)
-             : el('div',{},value)
-    ]);
-    return box;
-  }
-
-  grid.append(
-    kv('Major', data.major, 6),
-    kv('Grade Level', data.grade, 6),
-    kv('Interests', data.interests, 12),
-    kv('LinkedIn', data.linkedin, 12, true),
-    kv('Phone', data.phone, 6),
-    kv('Email', data.email, 6)
-  );
-
-  wrap.append(top, grid);
-}
-
-/* ---------- Boot ---------- */
-(function init(){
-  const hash = location.hash.replace(/^#/,'').trim();
-  if (hash){
-    // VIEW MODE
+/* ---------------- Boot: choose mode ---------------- */
+(function boot(){
+  if(location.hash.startsWith('#!')){
+    const payload = location.hash.slice(2);
     try{
-      const data = decodePayload(hash);
-      if (!data) throw new Error('bad payload');
-      renderView(data);
-      viewCard.hidden = false;
+      const json = LZString.decompressFromEncodedURIComponent(payload);
+      const arr = JSON.parse(json);
+      const obj = restore(arr);
+      renderView(obj);
     }catch(e){
-      console.error(e);
-      errorCard.hidden = false;
+      alert("Invalid contact link.");
     }
-  } else {
-    // EDIT MODE
-    editCard.hidden = false;
-    setLen( (location.origin + location.pathname).length ); // initial
+  }else{
+    document.getElementById('createCard').classList.remove('hide');
   }
 })();
 </script>
 </body>
 </html>
-
