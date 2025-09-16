@@ -182,9 +182,24 @@
     </div>
   </div>
 
-</div>
+</div> 
 
 <script>
+function normalizeImageUrl(url){
+    if (!url) return '';
+    url = url.trim();
+  
+    // Google Drive pattern: /file/d/{id}/view or open?id={id}
+    const d1 = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+    const d2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/i);
+    const id = d1 ? d1[1] : (d2 ? d2[1] : null);
+    if (id) {
+      return `https://drive.google.com/uc?export=view&id=${id}`;
+    }
+  
+    return url;
+  } 
+
 /* ---------- helpers: base64url ---------- */
 function b64urlFromUint8(uint8){
   let bin = '';
@@ -301,30 +316,6 @@ function normalizeLinkedIn(url){
     return u.toString();
   }catch{ return url; }
 }
-
-<script>
-function normalizeImageUrl(url){
-  if (!url) return '';
-  url = url.trim();
-
-  // Google Drive: /file/d/{id}/view or open?id={id}
-  const d1 = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
-  const d2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/i);
-  const id = d1 ? d1[1] : (d2 ? d2[1] : null);
-  if (id) {
-    // Direct view endpoint (works as <img> / CSS background)
-    return `https://drive.google.com/uc?export=view&id=${id}`;
-    // Or thumbnail CDN variant (size hint): https://lh3.googleusercontent.com/d/ID=s256
-  }
-
-  // Dropbox share → raw
-  if (/dropbox\.com\/s\//i.test(url)) {
-    return url.replace(/\?dl=0$/,'').replace('www.dropbox.com','dl.dropboxusercontent.com');
-  }
-
-  return url;
-}
-</script>
 
 
 async function buildLink(){
