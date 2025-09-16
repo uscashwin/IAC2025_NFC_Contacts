@@ -18,30 +18,21 @@
       radial-gradient(900px 500px at 120% 10%, #e7f6ff 0%, transparent 65%),
       var(--bg);
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased; line-height:1.25;
+    color:var(--ink); line-height:1.25;
   }
   .wrap{max-width:840px; margin:40px auto; padding:0 20px}
   .card{
-    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    background:var(--card); border-radius:22px; box-shadow:var(--shadow);
     padding:28px; position:relative; overflow:hidden;
   }
-  .header{
-    display:flex; align-items:center; gap:20px; padding-bottom:18px; border-bottom:1px solid #f1f5ff;
-  }
-  .avatar{
-    width:96px; height:96px; border-radius:24px; background:#f3f4f6; overflow:hidden; flex:0 0 auto;
-    display:grid; place-items:center; box-shadow: inset 0 0 0 1px #eef2ff;
-  }
+  .header{display:flex; align-items:center; gap:20px; padding-bottom:18px; border-bottom:1px solid #f1f5ff}
+  .avatar{width:96px; height:96px; border-radius:24px; background:#f3f4f6; overflow:hidden; display:grid; place-items:center; box-shadow: inset 0 0 0 1px #eef2ff}
   .avatar img{width:100%; height:100%; object-fit:cover; display:block}
-  .title h1{margin:0 0 6px 0; font-size:28px; font-weight:800; letter-spacing:.2px}
+  .title h1{margin:0 0 6px 0; font-size:28px; font-weight:800}
   .title p{margin:0; color:var(--muted)}
-  .grid{
-    display:grid; gap:16px; margin-top:22px;
-    grid-template-columns: repeat(2, minmax(0,1fr));
-  }
-  @media (max-width:720px){ .grid{grid-template-columns: 1fr} }
-  label{font-size:12px; color:#6b7280; margin-bottom:6px; display:block; letter-spacing:.3px}
+  .grid{display:grid; gap:16px; margin-top:22px; grid-template-columns: repeat(2, minmax(0,1fr))}
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  label{font-size:12px; color:#6b7280; margin-bottom:6px; display:block}
   input, textarea{
     width:100%; border:1px solid #e6e9f9; border-radius:14px; padding:12px 14px;
     font-size:15px; outline:0; background:#fbfcff;
@@ -56,26 +47,19 @@
   }
   .btn.sec{background:#eef2ff; color:#3b3f5c}
   .note{color:var(--muted); font-size:13px}
-  .out{
-    margin-top:18px; background:#f7f8ff; border:1px dashed #c7d2fe; padding:14px; border-radius:14px; overflow:auto
-  }
-  .pillbar{display:flex; gap:12px; margin-top:14px}
-  .pill{
-    background:#f5f7ff; border-radius:16px; padding:10px 12px; font-size:13px; color:#4b5563;
-    display:flex; align-items:center; gap:8px; box-shadow: inset 0 0 0 1px #e5e9ff;
-  }
+  .out{margin-top:18px; background:#f7f8ff; border:1px dashed #c7d2fe; padding:14px; border-radius:14px; overflow:auto}
+  .pillbar{display:flex; gap:12px; margin-top:14px; flex-wrap:wrap}
+  .pill{background:#f5f7ff; border-radius:16px; padding:10px 12px; font-size:13px; color:#4b5563; display:flex; align-items:center; gap:8px; box-shadow: inset 0 0 0 1px #e5e9ff}
   .actions{display:flex; gap:10px; flex-wrap:wrap}
-  .iconbtn{
-    width:48px; height:48px; display:grid; place-items:center; border-radius:14px; background:#eef2ff;
-    box-shadow:var(--shadow); color:#374151; text-decoration:none; font-weight:900;
-  }
+  .iconbtn{width:48px; height:48px; display:grid; place-items:center; border-radius:14px; background:#eef2ff; box-shadow:var(--shadow); color:#374151; text-decoration:none; font-weight:900}
   .field{display:flex; align-items:center; justify-content:space-between; gap:12px}
   .field span{font-weight:700}
   .divider{height:1px; background:#f1f5ff; margin:10px 0}
   .footerNote{margin-top:8px; font-size:12px; color:#6b7280}
-  .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+  .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
   .lenok{font-size:12px; color:#6b7280}
   .hide{display:none !important}
+  .err{margin-top:12px; padding:10px 12px; border-radius:12px; background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca}
 </style>
 </head>
 <body>
@@ -85,66 +69,39 @@
       <div class="avatar"><img id="preview" alt="Profile picture preview" src="" onerror="this.src=''; this.parentElement.style.background='#f3f4f6'"></div>
       <div class="title">
         <h1>Create your contact</h1>
-        <p>Fill the form → generate a compact link (target ≤ 492 chars) for your NFC tag.</p>
+        <p>Fill the form → generate a compact link (≤492 chars) for your NFC tag.</p>
       </div>
     </div>
 
     <div class="grid" id="formGrid">
-      <div>
-        <label>Profile picture URL</label>
-        <input id="pic" placeholder="https://…" oninput="updatePreview(this.value)">
-      </div>
-      <div>
-        <label>Full name</label>
-        <input id="name" placeholder="Ada Lovelace">
-      </div>
-
-      <div>
-        <label>University</label>
-        <input id="uni" placeholder="USC">
-      </div>
-      <div>
-        <label>Major</label>
-        <input id="major" placeholder="Astronautical Engineering">
-      </div>
-
-      <div>
-        <label>Grade level</label>
-        <input id="grade" placeholder="Graduate / Junior / etc.">
-      </div>
-      <div>
-        <label>Interests (comma-separated)</label>
-        <input id="interests" placeholder="Propulsion, Avionics, Robotics">
-      </div>
-
-      <div>
-        <label>LinkedIn URL</label>
-        <input id="li" placeholder="https://www.linkedin.com/in/username">
-      </div>
+      <div><label>Profile picture URL</label><input id="pic" placeholder="https://…" oninput="updatePreview(this.value)"></div>
+      <div><label>Full name</label><input id="name" placeholder="Ada Lovelace"></div>
+      <div><label>University</label><input id="uni" placeholder="USC"></div>
+      <div><label>Major</label><input id="major" placeholder="Astronautical Engineering"></div>
+      <div><label>Grade level</label><input id="grade" placeholder="Graduate / Junior / etc."></div>
+      <div><label>Interests (comma-separated)</label><input id="interests" placeholder="Propulsion, Avionics, Robotics"></div>
+      <div><label>LinkedIn URL</label><input id="li" placeholder="https://www.linkedin.com/in/username"></div>
       <div class="row">
-        <div style="flex:1">
-          <label>Phone</label>
-          <input id="phone" placeholder="(555) 123-4567">
-        </div>
-        <div style="flex:1">
-          <label>Email</label>
-          <input id="email" placeholder="you@example.com">
-        </div>
+        <div style="flex:1"><label>Phone</label><input id="phone" placeholder="(555) 123-4567"></div>
+        <div style="flex:1"><label>Email</label><input id="email" placeholder="you@example.com"></div>
       </div>
     </div>
 
     <div class="row" style="margin-top:16px">
-      <button class="btn" onclick="generate()">Generate link</button>
-      <button class="btn sec" onclick="clearForm()">Reset</button>
+      <button class="btn" type="button" id="genBtn">Generate link</button>
+      <button class="btn sec" type="button" onclick="clearForm()">Reset</button>
     </div>
+
+    <div id="errBox" class="err hide"></div>
+
     <div class="out hide" id="outBox">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px">
-        <div class="note">Copy this URL into your NFC tag writer (store as a URL/URI record). It opens a read-only card.</div>
+        <div class="note">Copy this URL into your NFC tag writer (URL/URI record). It opens a read-only card.</div>
         <div class="lenok"><span id="lenNum">0</span> chars</div>
       </div>
       <div class="mono" id="urlText" style="margin-top:8px; word-break:break-all"></div>
     </div>
-    <div class="footerNote">All data stays inside the URL hash (no server). The “view” page has no edit controls.</div>
+    <div class="footerNote">All data stays in the URL hash (no server). The “view” page has no edit controls.</div>
   </div>
 
   <div id="viewCard" class="card hide" aria-live="polite">
@@ -155,13 +112,11 @@
         <p id="v_sub" class="mono"></p>
       </div>
     </div>
-
     <div class="pillbar">
       <div class="pill"><span id="v_uni">University</span></div>
       <div class="pill"><span id="v_major">Major</span></div>
       <div class="pill"><span id="v_grade">Grade</span></div>
     </div>
-
     <div style="margin-top:18px">
       <div class="field"><span>Phone</span><a id="v_phone" class="iconbtn" title="Call">📞</a></div>
       <div class="divider"></div>
@@ -169,7 +124,6 @@
       <div class="divider"></div>
       <div class="field"><span>LinkedIn</span><a id="v_li" class="iconbtn" title="LinkedIn">in</a></div>
     </div>
-
     <div style="margin-top:18px">
       <label>Interests</label>
       <div id="v_interests" class="pillbar"></div>
@@ -179,120 +133,98 @@
 </div>
 
 <script>
-/* --- Minimal LZ-String (compressToEncodedURIComponent / decompressFromEncodedURIComponent) --- */
-/* Source: https://github.com/pieroxy/lz-string (MIT). Trimmed for URI-component use. */
-var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},e={compressToEncodedURIComponent:function(o){return null==o?"":e._compress(o,6,function(o){return n.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:e._decompress(r.length,32,function(t){return o(n,r.charAt(t))})},_compress:function(o,t,e){if(null==o)return"";var n,r,i,s={},p={},u="",a="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),a=c+u,Object.prototype.hasOwnProperty.call(s,a))c=a;else{if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(n=0;n<h;n++)m<<=1,v==t-1?(v=0,d.push(e(m)),m=0):v++;for(r=c.charCodeAt(0),n=0;n<8;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}else{for(r=1,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(r=c.charCodeAt(0),n=0;n<16;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(r=s[c],n=0;n<h;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[a]=f++,c=String(u)}if(""!==c){if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(n=0;n<h;n++)m<<=1,v==t-1?(v=0,d.push(e(m)),m=0):v++;for(r=c.charCodeAt(0),n=0;n<8;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}else{for(r=1,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(r=c.charCodeAt(0),n=0;n<16;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(r=s[c],n=0;n<h;n++)m=m<<1|1&r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(r=2,n=0;n<h;n++)m=m<<1|r,v==t-1?(v=0,d.push(e(m)),m=0):v++,r=0;for(;;){if(m<<=1,v==t-1){d.push(e(m));break}v++}return d.join("")},_decompress:function(o,t,e){var n,r,i,s,p,u,a,c,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:t,index:1};for(n=0;n<3;n+=1)f[n]=n;for(i=0,p=Math.pow(2,2),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=r=String.fromCharCode(i);break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=r=String.fromCharCode(i);break;case 2:return""}for(f[3]=r,a=r,l=w;!0;){if(A.index>o)return"";for(i=0,p=Math.pow(2,m),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(c=i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=t,A.val=e(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 2:return l.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[c])v=f[c];else{if(c!==d)return null;v=a+a.charAt(0)}l.push(v),f[d++]=a+v.charAt(0),a=v,0==--h&&(h=Math.pow(2,m),m++)}}
+/* ------- Minimal LZ-String (URI safe) ------- */
+var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},e={compressToEncodedURIComponent:function(o){return null==o?"":e._compress(o,6,function(o){return r.charAt(o)})},decompressFromEncodedURIComponent:function(t){return null==t?"":""==t?null:e._decompress(t.length,32,function(e){return o(r,t.charAt(e))})},_compress:function(o,r,t){if(null==o)return"";var e,n,i,s={},p={},u="",a="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),a=c+u,Object.prototype.hasOwnProperty.call(s,a))c=a;else{if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==r-1?(v=0,d.push(t(m)),m=0):v++;for(n=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1}else{for(n=1,e=0;e<h;e++)m=m<<1|n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n=0;for(n=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(n=s[c],e=0;e<h;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[a]=f++,c=String(u)}if(""!==c){if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==r-1?(v=0,d.push(t(m)),m=0):v++;for(n=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1}else{for(n=1,e=0;e<h;e++)m=m<<1|n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n=0;for(n=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[c]}else for(n=s[c],e=0;e<h;e++)m=m<<1|1&n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(n=2,e=0;e<h;e++)m=m<<1|n,v==r-1?(v=0,d.push(t(m)),m=0):v++,n=0;for(;;){if(m<<=1,v==r-1){d.push(t(m));break}v++}return d.join("")},_decompress:function(o,r,t){var e,n,i,s,p,u,a,c,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:t(0),position:r,index:1};for(e=0;e<3;e+=1)f[e]=e;for(i=0,p=Math.pow(2,2),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=n=String.fromCharCode(i);break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;c=n=String.fromCharCode(i);break;case 2:return""}for(f[3]=n,a=n,l=w;!0;){if(A.index>o)return"";for(i=0,p=Math.pow(2,m),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;switch(c=i){case 0:for(i=0,p=Math.pow(2,8),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 1:for(i=0,p=Math.pow(2,16),u=1;u!=p;)s=A.val&A.position,A.position>>=1,0==A.position&&(A.position=r,A.val=t(A.index++)),i|=(s>0?1:0)*u,u<<=1;f[d++]=String.fromCharCode(i),c=d-1,h--;break;case 2:return l.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[c])v=f[c];else{if(c!==d)return null;v=a+a.charAt(0)}l.push(v),f[d++]=a+v.charAt(0),a=v,0==--h&&(h=Math.pow(2,m),m++)}}
   return e;}();
 
-/* ---------------- UI helpers ---------------- */
-function updatePreview(url){
-  const img = document.getElementById('preview');
-  img.src = (url||'').trim();
+/* ---------- UI helpers ---------- */
+function showErr(msg){
+  const box=document.getElementById('errBox');
+  box.textContent=msg; box.classList.remove('hide');
 }
+function clearErr(){ document.getElementById('errBox').classList.add('hide'); }
+function updatePreview(url){ document.getElementById('preview').src=(url||'').trim(); }
 
 /* Normalize for compactness without losing info */
 function compactify(data){
-  // LinkedIn: drop scheme/www for storage; restore on view
-  let li = (data.li||'').trim()
-    .replace(/^https?:\/\//i,'').replace(/^www\./i,'');
-  // Phone: keep digits + plus only
-  let phone = (data.phone||'').replace(/[^\d+]/g,'');
-  // Trim everything else
-  for (const k of Object.keys(data)) if (typeof data[k]==='string') data[k]=data[k].trim();
+  let li=(data.li||'').trim().replace(/^https?:\/\//i,'').replace(/^www\./i,'');
+  let phone=(data.phone||'').replace(/[^\d+]/g,'');
+  for(const k of Object.keys(data)) if(typeof data[k]==='string') data[k]=data[k].trim();
   return [data.pic, data.name, data.uni, data.major, data.grade, data.interests, li, phone, data.email];
 }
-
 function restore(arr){
   const [pic,name,uni,major,grade,interests,li,phone,email]=arr;
-  return {
-    pic, name, uni, major, grade, interests,
-    li: li ? (li.startsWith('http')? li : 'https://' + li) : '',
-    phone, email
-  };
+  return { pic, name, uni, major, grade, interests,
+           li: li ? (li.startsWith('http')? li : 'https://'+li) : '',
+           phone, email };
 }
 
-/* ---------------- Generate link ---------------- */
+/* ---------- Generate link ---------- */
 function generate(){
-  const data = {
-    pic : document.getElementById('pic').value,
-    name: document.getElementById('name').value,
-    uni : document.getElementById('uni').value,
-    major:document.getElementById('major').value,
-    grade:document.getElementById('grade').value,
-    interests:document.getElementById('interests').value,
-    li  :document.getElementById('li').value,
-    phone:document.getElementById('phone').value,
-    email:document.getElementById('email').value
-  };
-  const packed = compactify(data);
-  const json = JSON.stringify(packed);
-  const hash = LZString.compressToEncodedURIComponent(json); // compact & URL-safe
-  const url = location.origin + location.pathname + "#!" + hash;
+  clearErr();
+  try{
+    const data={
+      pic:pic.value, name:name.value, uni:uni.value, major:major.value, grade:grade.value,
+      interests:interests.value, li:li.value, phone:phone.value, email:email.value
+    };
+    const packed=compactify(data);
+    const json=JSON.stringify(packed);
+    const hash=LZString.compressToEncodedURIComponent(json);
 
-  const out = document.getElementById('outBox');
-  document.getElementById('urlText').textContent = url;
-  document.getElementById('lenNum').textContent = url.length;
-  out.classList.remove('hide');
+    // Safari/file:// safe base (no origin dependency)
+    const base=window.location.href.replace(/#.*/,'');
+    const url=base + "#!" + hash;
 
-  if(url.length>492){
-    document.getElementById('lenNum').style.color = '#b91c1c';
-  }else{
-    document.getElementById('lenNum').style.color = '#6b7280';
+    urlText.textContent=url;
+    lenNum.textContent=url.length;
+    outBox.classList.remove('hide');
+    lenNum.style.color = (url.length>492) ? '#b91c1c' : '#6b7280';
+  }catch(err){
+    showErr("Could not generate link: " + (err && err.message ? err.message : String(err)));
   }
 }
 
-/* ---------------- Clear ---------------- */
+/* ---------- Clear ---------- */
 function clearForm(){
-  for (const id of ['pic','name','uni','major','grade','interests','li','phone','email'])
-    document.getElementById(id).value='';
-  updatePreview('');
-  document.getElementById('outBox').classList.add('hide');
+  ['pic','name','uni','major','grade','interests','li','phone','email'].forEach(id=>document.getElementById(id).value='');
+  updatePreview(''); outBox.classList.add('hide'); clearErr();
 }
 
-/* ---------------- Render view-only card ---------------- */
+/* ---------- Render view-only card ---------- */
 function renderView(obj){
-  document.getElementById('createCard').classList.add('hide');
-  const v = document.getElementById('viewCard');
-  v.classList.remove('hide');
-
-  document.getElementById('v_pic').src = obj.pic||'';
-  document.getElementById('v_name').textContent = obj.name||'';
-  document.getElementById('v_sub').textContent = (obj.phone?obj.phone:'') + (obj.phone&&obj.email?' · ':'') + (obj.email?obj.email:'');
-
-  document.getElementById('v_uni').textContent = obj.uni||'';
-  document.getElementById('v_major').textContent = obj.major||'';
-  document.getElementById('v_grade').textContent = obj.grade||'';
-
-  const iwrap = document.getElementById('v_interests');
-  iwrap.innerHTML='';
+  createCard.classList.add('hide'); viewCard.classList.remove('hide');
+  v_pic.src=obj.pic||''; v_name.textContent=obj.name||'';
+  v_sub.textContent=(obj.phone?obj.phone:'') + (obj.phone&&obj.email?' · ':'') + (obj.email?obj.email:'');
+  v_uni.textContent=obj.uni||''; v_major.textContent=obj.major||''; v_grade.textContent=obj.grade||'';
+  v_interests.innerHTML='';
   (obj.interests||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{
-    const el=document.createElement('div'); el.className='pill'; el.textContent=s; iwrap.appendChild(el);
+    const el=document.createElement('div'); el.className='pill'; el.textContent=s; v_interests.appendChild(el);
   });
-
-  // actions
-  const phoneDigits = (obj.phone||'').replace(/[^\d+]/g,'');
-  document.getElementById('v_phone').href = phoneDigits ? ('tel:' + phoneDigits) : '#';
-  document.getElementById('v_email').href = obj.email ? ('mailto:' + obj.email) : '#';
-  document.getElementById('v_li').href    = obj.li || '#';
-  // Remove titles if no data
-  for (const [id,has] of [['v_phone',!!phoneDigits],['v_email',!!obj.email],['v_li',!!obj.li]])
+  const phoneDigits=(obj.phone||'').replace(/[^\d+]/g,'');
+  v_phone.href=phoneDigits?('tel:'+phoneDigits):'#';
+  v_email.href=obj.email?('mailto:'+obj.email):'#';
+  v_li.href=obj.li||'#';
+  [['v_phone',!!phoneDigits],['v_email',!!obj.email],['v_li',!!obj.li]].forEach(([id,has])=>{
     if(!has) document.getElementById(id).classList.add('hide');
+  });
 }
 
-/* ---------------- Boot: choose mode ---------------- */
-(function boot(){
+/* ---------- Boot ---------- */
+(function(){
+  // click handler (avoid inline-onclick race conditions)
+  document.getElementById('genBtn').addEventListener('click', generate);
+
   if(location.hash.startsWith('#!')){
-    const payload = location.hash.slice(2);
     try{
-      const json = LZString.decompressFromEncodedURIComponent(payload);
-      const arr = JSON.parse(json);
-      const obj = restore(arr);
-      renderView(obj);
+      const payload=location.hash.slice(2);
+      const json=LZString.decompressFromEncodedURIComponent(payload);
+      const arr=JSON.parse(json);
+      renderView(restore(arr));
     }catch(e){
-      alert("Invalid contact link.");
+      showErr("Invalid or corrupted contact link.");
     }
   }else{
-    document.getElementById('createCard').classList.remove('hide');
+    createCard.classList.remove('hide');
   }
 })();
 </script>
